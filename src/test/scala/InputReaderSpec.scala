@@ -14,4 +14,9 @@ class InputReaderSpec extends FlatSpec with Matchers with MockFactory {
     inputReader.code.length should be(testCode.length)
   }
 
+  "Consuming each char" should "return each chars" in {
+    for ((x,i) <- inputReader.code.zipWithIndex)
+      inputReader.consumeCodeChar should be(testCode(i))
+  }
+
 }
