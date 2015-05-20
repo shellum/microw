@@ -28,12 +28,12 @@ trait InputSpec {
       None
     else
       code(nextCharIndex) match {
-        case '{' | '}' => Option("block")
-        case '+' | '*' | '-' | '/' => Option("operator")
-        case '=' => Option("assignment")
-        case '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0' => Option("digit")
-        case ' ' | '\n' | '\t' => Option("whitespace")
-        case _ => Option("variable")
+        case '{' | '}' => Option(Token.TYPE_BLOCK)
+        case '+' | '*' | '-' | '/' => Option(Token.TYPE_OPERATOR)
+        case '=' => Option(Token.TYPE_ASSIGNMENT)
+        case '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0' => Option(Token.TYPE_DIGIT)
+        case ' ' | '\n' | '\t' => Option(Token.TYPE_WHITESPACE)
+        case _ => Option(Token.TYPE_VARIABLE)
       }
   }
 
