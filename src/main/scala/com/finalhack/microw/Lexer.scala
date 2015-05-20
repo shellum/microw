@@ -19,7 +19,7 @@ class Lexer extends LexerSpec {
 
   def getTokenType(codePart: String): String = {
     codePart match {
-      case "+" => Token.TYPE_OPERATOR
+      case "+" | "*" | "-" | "/" | "++" | "--" => Token.TYPE_OPERATOR
       case "=" => Token.TYPE_ASSIGNMENT
       case "1" => Token.TYPE_NUMBER
       case _ => Token.TYPE_VARIABLE

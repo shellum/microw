@@ -2,9 +2,9 @@ package com.finalhack.microw
 
 import scala.io.Source
 
-// TODO: rename file to Input
 trait InputSpec {
   def code: String
+
   var nextCharIndex = 0
 
   def consumeCodeChar: Option[Char] = {
@@ -20,7 +20,7 @@ trait InputSpec {
 
   def movePastWhitespace = {
     val whitespace = Array(' ', '\n', '\t')
-    while (whitespace.contains(code(nextCharIndex))) nextCharIndex += 1
+    while (nextCharIndex < code.length && whitespace.contains(code(nextCharIndex))) nextCharIndex += 1
   }
 
   def getNextCharType: Option[String] = {

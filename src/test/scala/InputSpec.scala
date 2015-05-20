@@ -2,7 +2,7 @@ import com.finalhack.microw.Input
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, Matchers}
 
-class InputReaderSpec extends FlatSpec with Matchers with MockFactory {
+class InputSpec extends FlatSpec with Matchers with MockFactory {
 
   val testCode = "asdf\nasdf2"
 

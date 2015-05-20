@@ -6,7 +6,7 @@ class LexerSpec extends FlatSpec with Matchers with MockFactory {
 
   val lexer = new Lexer {
     override val input = new Input {
-      override val code = "asdf = asdf + 1"
+      override val code = "asdf = asdf + 1\nasdf++"
     }
   }
 
@@ -54,6 +54,17 @@ class LexerSpec extends FlatSpec with Matchers with MockFactory {
     token = lexer.getNextCodePart.get
     token.`type` should be(Token.TYPE_NUMBER)
     token.value should be("1")
+
+    token = lexer.getNextCodePart.get
+    token.`type` should be(Token.TYPE_VARIABLE)
+    token.value should be("asdf")
+
+    token = lexer.getNextCodePart.get
+    token.`type` should be(Token.TYPE_OPERATOR)
+    token.value should be("++")
+
+    val ending = lexer.getNextCodePart
+    ending should be(None)
   }
 
 }
