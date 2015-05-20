@@ -1,15 +1,19 @@
 import com.finalhack.microw.{Input, Lexer, Token}
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
 
-class LexerSpec extends FlatSpec with Matchers with MockFactory {
+class LexerSpec extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
 
-  val lexer = new Lexer {
-    override val input = new Input {
-      override val code = """
-        |asdf = asdf + 1
-        |asdf++
-        |""".stripMargin
+  var lexer: Lexer = _
+
+  before {
+    lexer = new Lexer {
+      override val input = new Input {
+        override val code = """
+          |asdf = asdf + 1
+          |asdf++
+          | """.stripMargin
+      }
     }
   }
 
@@ -68,6 +72,11 @@ class LexerSpec extends FlatSpec with Matchers with MockFactory {
 
     val ending = lexer.getNextCodePart
     ending should be(None)
+  }
+
+  it should "create the correct number of tokens" in {
+    val tokens = lexer.getAllTokens()
+    tokens.size should be(7)
   }
 
 }

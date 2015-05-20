@@ -38,4 +38,11 @@ class Lexer extends LexerSpec {
     }
   }
 
+  def getAllTokens(tokenList: List[Token] = List[Token]()): List[Token] = {
+    input.consumeCodePart match {
+      case Some(codePart) => getAllTokens(tokenList ++ List(createToken(codePart)))
+      case None => tokenList
+    }
+  }
+
 }
