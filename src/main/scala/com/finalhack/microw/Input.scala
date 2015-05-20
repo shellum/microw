@@ -38,7 +38,6 @@ trait InputSpec {
   }
 
   def consumeCodePart: Option[String] = {
-    // Fast forward through whitespace
     movePastWhitespace
 
     val codePartType = getNextCharType
@@ -46,7 +45,6 @@ trait InputSpec {
     codePartType match {
       case None => None
       case Some(codePartTypeValue) =>
-        // Remember all characters of a type
         var codePart = ""
         while (getNextCharType.isDefined && getNextCharType.get == codePartTypeValue) codePart += consumeCodeChar.get
         Option(codePart)
