@@ -7,7 +7,7 @@ class InputReaderSpec extends FlatSpec with Matchers with MockFactory {
   val testCode = "asdf\nasdf2"
 
   val inputReader = new Input {
-    override def code = testCode
+    override val code = testCode
   }
 
   "Number of lines input" should "match the input count" in {
@@ -16,7 +16,7 @@ class InputReaderSpec extends FlatSpec with Matchers with MockFactory {
 
   "Consuming each char" should "return each chars" in {
     for ((x,i) <- inputReader.code.zipWithIndex)
-      inputReader.consumeCodeChar should be(testCode(i))
+      inputReader.consumeCodeChar.get should be(testCode(i))
   }
 
 }
