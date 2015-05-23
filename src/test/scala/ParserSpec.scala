@@ -30,10 +30,10 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
 
     while (p.next < p.tokens.length) p.expr
     p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"5"))
-    p.queue.dequeue() should be(Token(Token.DELIMITER,"....."))
+    p.queue.dequeue() should be(Token(Token.DELIMITER))
     p.queue.dequeue() should be(Token(Token.TYPE_OPERATOR,"*"))
     p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"1"))
-    p.queue.dequeue() should be(Token(Token.DELIMITER,"....."))
+    p.queue.dequeue() should be(Token(Token.DELIMITER))
     p.queue.dequeue() should be(Token(Token.TYPE_OPERATOR,"-"))
     p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"8"))
   }
@@ -51,7 +51,7 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
 
     while (p.next < p.tokens.length) p.expr
     p.queue.dequeue().`type` should be(Token.TYPE_ERROR)
-    p.queue.dequeue() should be(Token(Token.DELIMITER,"....."))
+    p.queue.dequeue() should be(Token(Token.DELIMITER))
     p.queue.dequeue() should be(Token(Token.TYPE_OPERATOR,"*"))
     p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"1"))
   }

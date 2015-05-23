@@ -1,6 +1,6 @@
 package com.finalhack.microw
 
-case class Token(`type`: String, value: String)
+case class Token(`type`: String, value: String = "")
 object Token {
   val TYPE_OPERATOR = "operator"
   val TYPE_ASSIGNMENT = "assignment"
