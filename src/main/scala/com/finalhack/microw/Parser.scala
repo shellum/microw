@@ -32,33 +32,30 @@ class Parser {
 
   def exprCompoundOpExpr: Boolean = {
     val localSave = save
-    save = next
     val savedQueueSize = queue.size
+    save = next
     val ret = term(Token.TYPE_OPERATOR) && expr
-    if (!ret) while(queue.size > savedQueueSize) {queue = queue.reverse; queue.dequeue(); queue = queue.reverse}
-    if (!ret) {next = localSave; save = localSave;}
+    if (!ret) rollBack(savedQueueSize, localSave)
     // Delimiter handled recursively
     ret
   }
 
   def exprCompoundNum: Boolean = {
     val localSave = save
-    save = next
     val savedQueueSize = queue.size
+    save = next
     val ret = term(Token.TYPE_NUMBER) && exprCompoundOpExpr
-    if (!ret) while(queue.size > savedQueueSize) {queue = queue.reverse; queue.dequeue(); queue = queue.reverse}
-    if (!ret) {next = localSave; save = localSave;}
+    if (!ret) rollBack(savedQueueSize, localSave)
     // Delimiter handled recursively
     ret
   }
 
   def exprCompoundId: Boolean = {
     val localSave = save
-    save = next
     val savedQueueSize = queue.size
+    save = next
     val ret = term(Token.TYPE_VARIABLE) && exprCompoundOpExpr
-    if (!ret) while(queue.size > savedQueueSize) {queue = queue.reverse; queue.dequeue(); queue = queue.reverse}
-    if (!ret) {next = localSave; save = localSave;}
+    if (!ret) rollBack(savedQueueSize, localSave)
     // Delimiter handled recursively
     ret
   }
@@ -98,6 +95,18 @@ class Parser {
     queue.enqueue(Token(Token.DELIMITER))
     next += 1
     true
+  }
+  
+  def rollBack(savedQueueSize: Int, savedTokenIndex: Int) = {
+    // Rollback Queue
+    while(queue.size > savedQueueSize) {
+      queue = queue.reverse
+      queue.dequeue()
+      queue = queue.reverse
+    }
+    // Rollback token pointer
+    next = savedTokenIndex
+    save = savedTokenIndex
   }
 
 }
