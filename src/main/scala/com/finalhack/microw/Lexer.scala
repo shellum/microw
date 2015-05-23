@@ -1,6 +1,6 @@
 package com.finalhack.microw
 
-case class Token(`type`: String, value: Object)
+case class Token(`type`: String, value: String)
 object Token {
   val TYPE_OPERATOR = "operator"
   val TYPE_ASSIGNMENT = "assignment"
@@ -9,6 +9,7 @@ object Token {
   val TYPE_BLOCK = "block"
   val TYPE_WHITESPACE = "whitespace"
   val TYPE_DIGIT = "digit"
+  val TYPE_ERROR = "error"
 }
 
 trait LexerSpec {
