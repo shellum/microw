@@ -2,6 +2,7 @@ package com.finalhack.microw
 
 case class Token(`type`: String, value: String = "")
 object Token {
+  val TYPE_EXPRESSION = "expression"
   val TYPE_OPERATOR = "operator"
   val TYPE_ASSIGNMENT = "assignment"
   val TYPE_NUMBER = "number"

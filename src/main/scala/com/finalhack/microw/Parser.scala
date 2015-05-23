@@ -10,14 +10,19 @@ class Parser {
   var tokens: List[Token] = _
 
   /*
+  CFG:
      expr ->
-           exprCompound|  exprb
-           exprNum     |  num
+           exprCompoundNum   |  NUM exprCompound  if multiple ops, next=save else save = next
+           exprCompoundId    |  ID exprCompound
+           exprNum           |  NUM
+           exprId            |  ID
      exprCompound->
-           exprCompoundOpNum| operation num
+           exprCompoundOpExpr| OPERATION expr
    */
   def term(value: String): Boolean = {
-    val ret = tokens(next).`type` == value
+    var ret = false
+    if (next < tokens.size)
+      ret = tokens(next).`type` == value
     if (ret) {
       queue.enqueue(tokens(next))
     }
@@ -25,29 +30,62 @@ class Parser {
     ret
   }
 
+  def exprCompoundOpExpr: Boolean = {
+    val localSave = save
+    save = next
+    val savedQueueSize = queue.size
+    val ret = term(Token.TYPE_OPERATOR) && expr
+    if (!ret) while(queue.size > savedQueueSize) {queue = queue.reverse; queue.dequeue(); queue = queue.reverse}
+    if (!ret) {next = localSave; save = localSave;}
+    // Delimiter handled recursively
+    ret
+  }
+
   def exprCompoundNum: Boolean = {
+    val localSave = save
+    save = next
+    val savedQueueSize = queue.size
+    val ret = term(Token.TYPE_NUMBER) && exprCompoundOpExpr
+    if (!ret) while(queue.size > savedQueueSize) {queue = queue.reverse; queue.dequeue(); queue = queue.reverse}
+    if (!ret) {next = localSave; save = localSave;}
+    // Delimiter handled recursively
+    ret
+  }
+
+  def exprCompoundId: Boolean = {
+    val localSave = save
+    save = next
+    val savedQueueSize = queue.size
+    val ret = term(Token.TYPE_VARIABLE) && exprCompoundOpExpr
+    if (!ret) while(queue.size > savedQueueSize) {queue = queue.reverse; queue.dequeue(); queue = queue.reverse}
+    if (!ret) {next = localSave; save = localSave;}
+    // Delimiter handled recursively
+    ret
+  }
+
+  def expr: Boolean = {
+      save = next
+      exprCompoundNum || exprCompoundId || exprNum || exprId || error
+  }
+
+  def exprCompound: Boolean = {
     next = save
-    val ret = term(Token.TYPE_OPERATOR) && term(Token.TYPE_NUMBER)
+    val ret = exprCompoundOpExpr
+    ret
+  }
+
+  def exprNum: Boolean = {
+    next = save
+    val ret = term(Token.TYPE_NUMBER)
     if (ret) {
       queue.enqueue(Token(Token.DELIMITER))
     }
     ret
   }
 
-  def expr: Boolean = {
-      save = next
-      exprCompound || expr2 || error
-  }
-
-  def exprCompound: Boolean = {
+  def exprId: Boolean = {
     next = save
-    val ret = exprCompoundNum
-    ret
-  }
-
-  def expr2: Boolean = {
-    next = save
-    val ret = term(Token.TYPE_NUMBER)
+    val ret = term(Token.TYPE_VARIABLE)
     if (ret) {
       queue.enqueue(Token(Token.DELIMITER))
     }
