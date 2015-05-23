@@ -10,6 +10,7 @@ object Token {
   val TYPE_WHITESPACE = "whitespace"
   val TYPE_DIGIT = "digit"
   val TYPE_ERROR = "error"
+  val DELIMITER = "....."
 }
 
 trait LexerSpec {

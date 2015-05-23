@@ -7,18 +7,18 @@ object Parse {
     val p = new Parser()
     while (p.next < p.tokens.length) p.expr
     for(s <- p.queue)
-      println(s)
+      println(s.`type` + " " + s.value)
   }
 
 }
 
 class Parser {
 
-  var queue = mutable.Queue[String]()
+  var queue = mutable.Queue[Token]()
   var next = 0
   var save = 0
   var tokens = List(
-    Token(Token.TYPE_NUMBER,"5"),
+    Token(Token.TYPE_VARIABLE,"i"),
     Token(Token.TYPE_OPERATOR,"*"),
     Token(Token.TYPE_NUMBER,"1"),
     Token(Token.TYPE_OPERATOR,"-"),
@@ -30,13 +30,15 @@ class Parser {
      expr ->
            expr3|  exprb
            expr2|  num
-           expr1|  error
+           error|  error
      exprb->
            exprb1| operation num
    */
   def term(value: String): Boolean = {
     val ret = tokens(next).`type` == value
-    if (ret) queue.enqueue(tokens(next).value)
+    if (ret) {
+      queue.enqueue(tokens(next))
+    }
     next += 1
     ret
   }
@@ -50,9 +52,7 @@ class Parser {
     next = save
     val ret = term(Token.TYPE_OPERATOR) && term(Token.TYPE_NUMBER)
     if (ret) {
-      queue.enqueue("op")
-      queue.enqueue("num")
-      queue.enqueue("........")
+      queue.enqueue(Token(Token.DELIMITER,"....."))
     }
     ret
   }
@@ -60,7 +60,7 @@ class Parser {
   def expr: Boolean = {
    // if (next < tokens.length) {
       save = next
-      expr3 || expr2 || expr1
+      expr3 || expr2 || error
    //   true
    // }
    // else
@@ -77,20 +77,17 @@ class Parser {
     next = save
     val ret = term(Token.TYPE_NUMBER)
     if (ret) {
-      queue.enqueue("num")
-      queue.enqueue("........")
+      queue.enqueue(Token(Token.DELIMITER,"....."))
     }
     ret
   }
 
-  def expr1: Boolean = {
+  def error: Boolean = {
     next = save
-    val ret = term(Token.TYPE_ERROR)
-    if (ret) {
-      queue.enqueue("error")
-      queue.enqueue("........")
-    }
-    ret
+    queue.enqueue(Token(Token.TYPE_ERROR,"error with token #" + next + ": " + tokens(next)))
+    queue.enqueue(Token(Token.DELIMITER,"....."))
+    next += 1
+    true
   }
 
 }
