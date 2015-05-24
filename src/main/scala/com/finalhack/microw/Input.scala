@@ -29,6 +29,8 @@ trait InputSpec {
     else
       code(nextCharIndex) match {
         case '{' | '}' => Option(Token.TYPE_BLOCK)
+        case '(' => Option(Token.TYPE_LEFT_PARENTHESES)
+        case ')' => Option(Token.TYPE_RIGHT_PARENTHESES)
         case '+' | '*' | '-' | '/' => Option(Token.TYPE_OPERATOR)
         case '=' => Option(Token.TYPE_ASSIGNMENT)
         case '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0' => Option(Token.TYPE_DIGIT)

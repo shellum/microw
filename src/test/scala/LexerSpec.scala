@@ -23,6 +23,24 @@ class LexerSpec extends FlatSpec with Matchers with MockFactory with BeforeAndAf
     token.value should be("+")
   }
 
+  "A Lexer" should "create an if token" in {
+    val token: Token = lexer.createToken("if")
+    token.`type` should be(Token.TYPE_IF)
+    token.value should be("if")
+  }
+
+  "A Lexer" should "create a left parentheses token" in {
+    val token: Token = lexer.createToken("(")
+    token.`type` should be(Token.TYPE_LEFT_PARENTHESES)
+    token.value should be("(")
+  }
+
+  "A Lexer" should "create a right parentheses token" in {
+    val token: Token = lexer.createToken(")")
+    token.`type` should be(Token.TYPE_RIGHT_PARENTHESES)
+    token.value should be(")")
+  }
+
   it should "create a variable token" in {
     val token: Token = lexer.createToken("asdf")
     token.`type` should be(Token.TYPE_VARIABLE)

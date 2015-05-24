@@ -12,10 +12,11 @@ class Parser {
   /*
   CFG:
      expr ->
-           exprCompoundNum   |  NUM exprCompound  if multiple ops, next=save else save = next
-           exprCompoundId    |  ID exprCompound
-           exprNum           |  NUM
-           exprId            |  ID
+           exprIf            | IF ( expr ) expr
+           exprCompoundNum   | NUM exprCompound  if multiple ops, next=save else save = next
+           exprCompoundId    | ID exprCompound
+           exprNum           | NUM
+           exprId            | ID
      exprCompound->
            exprCompoundOpExpr| OPERATION expr
    */
@@ -27,6 +28,16 @@ class Parser {
       queue.enqueue(tokens(next))
     }
     next += 1
+    ret
+  }
+
+  def exprIf: Boolean = {
+    val localSave = save
+    val savedQueueSize = queue.size
+    save = next
+    val ret = term(Token.TYPE_IF) && term(Token.TYPE_LEFT_PARENTHESES) && expr && term(Token.TYPE_RIGHT_PARENTHESES) && expr
+    if (!ret) rollBack(savedQueueSize, localSave)
+    // Delimiter handled recursively
     ret
   }
 
@@ -62,7 +73,7 @@ class Parser {
 
   def expr: Boolean = {
       save = next
-      exprCompoundNum || exprCompoundId || exprNum || exprId || error
+      exprIf || exprCompoundNum || exprCompoundId || exprNum || exprId || error
   }
 
   def exprCompound: Boolean = {

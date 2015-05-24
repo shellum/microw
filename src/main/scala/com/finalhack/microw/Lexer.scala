@@ -12,6 +12,9 @@ object Token {
   val TYPE_DIGIT = "digit"
   val TYPE_ERROR = "error"
   val DELIMITER = "....."
+  val TYPE_IF = "if"
+  val TYPE_LEFT_PARENTHESES = "("
+  val TYPE_RIGHT_PARENTHESES = ")"
 }
 
 trait LexerSpec {
@@ -23,6 +26,9 @@ class Lexer extends LexerSpec {
   def getTokenType(codePart: String): String = {
     codePart match {
       case "+" | "*" | "-" | "/" | "++" | "--" => Token.TYPE_OPERATOR
+      case "if" => Token.TYPE_IF
+      case "(" => Token.TYPE_LEFT_PARENTHESES
+      case ")" => Token.TYPE_RIGHT_PARENTHESES
       case "=" => Token.TYPE_ASSIGNMENT
       case "1" => Token.TYPE_NUMBER
       case _ => Token.TYPE_VARIABLE

@@ -58,4 +58,26 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
     p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"8"))
     p.queue.dequeue() should be(Token(Token.DELIMITER))
   }
+
+  "A Parser" should "understand if" in {
+    val p = new Parser()
+
+    p.tokens = List(
+      Token(Token.TYPE_IF, "if"),
+      Token(Token.TYPE_LEFT_PARENTHESES, "("),
+      Token(Token.TYPE_VARIABLE, "a"),
+      Token(Token.TYPE_RIGHT_PARENTHESES, ")"),
+      Token(Token.TYPE_VARIABLE, "b")
+    )
+
+    while (p.next < p.tokens.length) p.expr
+    p.queue.dequeue().`type` should be(Token.TYPE_IF)
+    p.queue.dequeue().`type` should be(Token.TYPE_LEFT_PARENTHESES)
+    p.queue.dequeue() should be(Token(Token.TYPE_VARIABLE,"a"))
+    p.queue.dequeue() should be(Token(Token.DELIMITER))
+    p.queue.dequeue().`type` should be(Token.TYPE_RIGHT_PARENTHESES)
+    p.queue.dequeue() should be(Token(Token.TYPE_VARIABLE,"b"))
+    p.queue.dequeue() should be(Token(Token.DELIMITER))
+  }
+
 }
