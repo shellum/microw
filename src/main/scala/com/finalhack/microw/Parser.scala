@@ -120,4 +120,12 @@ class Parser {
     save = savedTokenIndex
   }
 
+  def hasMoreTokens: Boolean = {
+    next < tokens.length
+  }
+
+  def getProcessedToken: Token = {
+    queue.dequeue()
+  }
+
 }

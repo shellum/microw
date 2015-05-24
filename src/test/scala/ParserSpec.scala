@@ -28,13 +28,14 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
       Token(Token.TYPE_NUMBER, "8")
     )
 
-    while (p.next < p.tokens.length) p.expr
-    p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"5"))
-    p.queue.dequeue() should be(Token(Token.TYPE_OPERATOR,"*"))
-    p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"1"))
-    p.queue.dequeue() should be(Token(Token.TYPE_OPERATOR,"-"))
-    p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"8"))
-    p.queue.dequeue() should be(Token(Token.DELIMITER))
+    while (p.hasMoreTokens) p.expr
+
+    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"5"))
+    p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"*"))
+    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"1"))
+    p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"-"))
+    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"8"))
+    p.getProcessedToken should be(Token(Token.DELIMITER))
   }
 
   "A Parser" should "understand errors" in {
@@ -48,15 +49,16 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
       Token(Token.TYPE_NUMBER, "8")
     )
 
-    while (p.next < p.tokens.length) p.expr
-    p.queue.dequeue().`type` should be(Token.TYPE_ERROR)
-    p.queue.dequeue() should be(Token(Token.DELIMITER))
-    p.queue.dequeue().`type` should be(Token.TYPE_ERROR)
-    p.queue.dequeue() should be(Token(Token.DELIMITER))
-    p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"1"))
-    p.queue.dequeue() should be(Token(Token.TYPE_OPERATOR,"-"))
-    p.queue.dequeue() should be(Token(Token.TYPE_NUMBER,"8"))
-    p.queue.dequeue() should be(Token(Token.DELIMITER))
+    while (p.hasMoreTokens) p.expr
+
+    p.getProcessedToken.`type` should be(Token.TYPE_ERROR)
+    p.getProcessedToken should be(Token(Token.DELIMITER))
+    p.getProcessedToken.`type` should be(Token.TYPE_ERROR)
+    p.getProcessedToken should be(Token(Token.DELIMITER))
+    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"1"))
+    p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"-"))
+    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"8"))
+    p.getProcessedToken should be(Token(Token.DELIMITER))
   }
 
   "A Parser" should "understand if" in {
@@ -70,14 +72,15 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
       Token(Token.TYPE_VARIABLE, "b")
     )
 
-    while (p.next < p.tokens.length) p.expr
-    p.queue.dequeue().`type` should be(Token.TYPE_IF)
-    p.queue.dequeue().`type` should be(Token.TYPE_LEFT_PARENTHESES)
-    p.queue.dequeue() should be(Token(Token.TYPE_VARIABLE,"a"))
-    p.queue.dequeue() should be(Token(Token.DELIMITER))
-    p.queue.dequeue().`type` should be(Token.TYPE_RIGHT_PARENTHESES)
-    p.queue.dequeue() should be(Token(Token.TYPE_VARIABLE,"b"))
-    p.queue.dequeue() should be(Token(Token.DELIMITER))
+    while (p.hasMoreTokens) p.expr
+    
+    p.getProcessedToken.`type` should be(Token.TYPE_IF)
+    p.getProcessedToken.`type` should be(Token.TYPE_LEFT_PARENTHESES)
+    p.getProcessedToken should be(Token(Token.TYPE_VARIABLE,"a"))
+    p.getProcessedToken should be(Token(Token.DELIMITER))
+    p.getProcessedToken.`type` should be(Token.TYPE_RIGHT_PARENTHESES)
+    p.getProcessedToken should be(Token(Token.TYPE_VARIABLE,"b"))
+    p.getProcessedToken should be(Token(Token.DELIMITER))
   }
 
 }
