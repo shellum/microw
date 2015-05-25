@@ -37,10 +37,12 @@ class AstNodeSpec extends FlatSpec with Matchers with MockFactory with BeforeAnd
 
     rootCopy should be(root)
     rootCopy.children should be(root.children)
+    rootCopy.children(0).parent should be(rootCopy)
     rootCopy.children(0) should be(root.children(0))
     rootCopy.children(1) should be(root.children(1))
     rootCopy.children(2) should be(root.children(2))
     rootCopy.children(0).children should be(root.children(0).children)
+    rootCopy.children(1).children(0).parent should be(rootCopy.children(1))
     rootCopy.children(1).children should be(root.children(1).children)
     rootCopy.children(2).children should be(root.children(2).children)
 
