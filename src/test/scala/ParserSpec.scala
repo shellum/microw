@@ -30,10 +30,13 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
 
     while (p.hasMoreTokens) p.expr
 
+    p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"5"))
     p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"*"))
+    p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"1"))
     p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"-"))
+    p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"8"))
     p.getProcessedToken should be(Token(Token.DELIMITER))
   }
@@ -51,12 +54,14 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
 
     while (p.hasMoreTokens) p.expr
 
+    p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken.`type` should be(Token.TYPE_ERROR)
     p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken.`type` should be(Token.TYPE_ERROR)
     p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"1"))
     p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"-"))
+    p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"8"))
     p.getProcessedToken should be(Token(Token.DELIMITER))
   }
@@ -73,12 +78,15 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
     )
 
     while (p.hasMoreTokens) p.expr
-    
+
+    p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken.`type` should be(Token.TYPE_IF)
     p.getProcessedToken.`type` should be(Token.TYPE_LEFT_PARENTHESES)
+    p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken should be(Token(Token.TYPE_VARIABLE,"a"))
     p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken.`type` should be(Token.TYPE_RIGHT_PARENTHESES)
+    p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken should be(Token(Token.TYPE_VARIABLE,"b"))
     p.getProcessedToken should be(Token(Token.DELIMITER))
   }

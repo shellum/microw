@@ -2,6 +2,7 @@ package com.finalhack.microw
 
 import scala.collection.mutable
 
+
 class Parser {
 
   var queue = mutable.Queue[Token]()
@@ -72,8 +73,11 @@ class Parser {
   }
 
   def expr: Boolean = {
-      save = next
-      exprIf || exprCompoundNum || exprCompoundId || exprNum || exprId || error
+    save = next
+    addDelimiter
+    val ret = exprIf || exprCompoundNum || exprCompoundId || exprNum || exprId || error
+    addDelimiter
+    ret
   }
 
   def exprCompound: Boolean = {
@@ -85,32 +89,25 @@ class Parser {
   def exprNum: Boolean = {
     next = save
     val ret = term(Token.TYPE_NUMBER)
-    if (ret) {
-      queue.enqueue(Token(Token.DELIMITER))
-    }
     ret
   }
 
   def exprId: Boolean = {
     next = save
     val ret = term(Token.TYPE_VARIABLE)
-    if (ret) {
-      queue.enqueue(Token(Token.DELIMITER))
-    }
     ret
   }
 
   def error: Boolean = {
     next = save
-    queue.enqueue(Token(Token.TYPE_ERROR,"error with token #" + next + ": " + tokens(next)))
-    queue.enqueue(Token(Token.DELIMITER))
+    queue.enqueue(Token(Token.TYPE_ERROR, "error with token #" + next + ": " + tokens(next)))
     next += 1
     true
   }
-  
+
   def rollBack(savedQueueSize: Int, savedTokenIndex: Int) = {
     // Rollback Queue
-    while(queue.size > savedQueueSize) {
+    while (queue.size > savedQueueSize) {
       queue = queue.reverse
       queue.dequeue()
       queue = queue.reverse
@@ -126,6 +123,11 @@ class Parser {
 
   def getProcessedToken: Token = {
     queue.dequeue()
+  }
+
+  def addDelimiter = {
+    if (queue.size == 0 || queue.reverse.front.`type` != Token.DELIMITER)
+      queue.enqueue(Token(Token.DELIMITER))
   }
 
 }
