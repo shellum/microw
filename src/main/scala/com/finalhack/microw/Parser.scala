@@ -6,6 +6,8 @@ import scala.collection.mutable
 class Parser {
 
   var queue = mutable.Queue[Token]()
+  var parseTree = AstNode()
+  var parseTreePointer = parseTree
   var next = 0
   var save = 0
   var tokens: List[Token] = _
@@ -27,16 +29,28 @@ class Parser {
       ret = tokens(next).`type` == value
     if (ret) {
       queue.enqueue(tokens(next))
+      parseTreePointer.addChild(tokens(next))
     }
     next += 1
     ret
+  }
+
+  def testIf: Boolean = {
+    parseTreePointer = parseTreePointer.children(parseTreePointer.children.size - 1)
+    true
   }
 
   def exprIf: Boolean = {
     val localSave = save
     val savedQueueSize = queue.size
     save = next
-    val ret = term(Token.TYPE_IF) && term(Token.TYPE_LEFT_PARENTHESES) && expr && term(Token.TYPE_RIGHT_PARENTHESES) && expr
+
+    val numChildren = parseTreePointer.children.size
+    var ret = term(Token.TYPE_IF)
+    var t = ret
+    ret = ret && testIf && term(Token.TYPE_LEFT_PARENTHESES) && expr && term(Token.TYPE_RIGHT_PARENTHESES) && expr
+    if (t) parseTreePointer = parseTreePointer.parent
+    if (!ret) parseTreePointer.children = parseTreePointer.children.take(numChildren)
     if (!ret) rollBack(savedQueueSize, localSave)
     // Delimiter handled recursively
     ret
@@ -66,7 +80,11 @@ class Parser {
     val localSave = save
     val savedQueueSize = queue.size
     save = next
+    parseTreePointer.addChild(Token(Token.DELIMITER))
+    parseTreePointer = parseTreePointer.children(parseTreePointer.children.size - 1)
     val ret = term(Token.TYPE_VARIABLE) && exprCompoundOpExpr
+    parseTreePointer = parseTreePointer.parent
+    if (!ret) parseTreePointer.children = parseTreePointer.children.dropRight(1)
     if (!ret) rollBack(savedQueueSize, localSave)
     // Delimiter handled recursively
     ret

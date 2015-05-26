@@ -91,4 +91,26 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
     p.getProcessedToken should be(Token(Token.DELIMITER))
   }
 
+  "A Parser" should "build a parse tree for if" in {
+    val p = new Parser()
+
+    p.tokens = List(
+      Token(Token.TYPE_IF, "if"),
+      Token(Token.TYPE_LEFT_PARENTHESES, "("),
+      Token(Token.TYPE_VARIABLE, "a"),
+      Token(Token.TYPE_RIGHT_PARENTHESES, ")"),
+      Token(Token.TYPE_VARIABLE, "b")
+    )
+
+    while (p.hasMoreTokens) p.expr
+
+    p.parseTree.children.size should be(1)
+    p.parseTree.children(0).value.value should be("if")
+    p.parseTree.children(0).children.size should be(4)
+    p.parseTree.children(0).children(0).value.value should be("(")
+    p.parseTree.children(0).children(1).value.value should be("a")
+    p.parseTree.children(0).children(2).value.value should be(")")
+    p.parseTree.children(0).children(3).value.value should be("b")
+  }
+
 }
