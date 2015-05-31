@@ -2,6 +2,7 @@ package com.finalhack.microw
 
 case class AstNode(value: Token = Token(Token.DELIMITER)) {
   var parent: AstNode = null
+  var visited = false
   var children: List[AstNode] = List()
   def addChild(child: Token) = {
     children = children :+ new AstNode(child).setParent(this)
@@ -26,4 +27,41 @@ case class AstNode(value: Token = Token(Token.DELIMITER)) {
     while(track.children != Nil) track = track.children(track.children.size - 1)
     track
   }
+
+  def traverseToBottomLeft: AstNode = {
+    var track = this
+    while(track.children != Nil) track = track.children(0)
+    track
+  }
+
+  def markAllVisited(visited: Boolean): Unit = {
+    this.visited = visited
+    for (child <- children)
+      child.markAllVisited(visited)
+  }
+
+  def getUnvisitedChild: AstNode = {
+    var unvisitedNode: AstNode = null
+    for (child <- children)
+      if (unvisitedNode == null && !child.visited)
+        unvisitedNode = child
+    unvisitedNode
+  }
+
+  def getNextUnvisitedNode: AstNode = {
+    var result: AstNode = this
+    if (!visited)
+      result = this
+    else {
+      result = getUnvisitedChild
+      if (result == null && parent == null)
+        result = null
+      else if (result == null)
+        result = parent.getNextUnvisitedNode
+    }
+    if (result != null)
+      result.visited = true
+    result
+  }
+
 }
