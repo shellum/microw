@@ -10,7 +10,20 @@ class Parser {
   var parseTreePointer = parseTree
   var next = 0
   var save = 0
-  var tokens: List[Token] = _
+  private var tokens: List[Token] = _
+
+  def setTokens(tokens: List[Token]) = {
+    var reorganizedTokens: List[Token] = tokens
+
+    tokens.zipWithIndex.foreach { case (token, i) =>
+        if (i > 0 && token.`type` == Token.TYPE_OPERATOR) {
+          val first = tokens(i-1)
+          val second = tokens(i)
+          reorganizedTokens = reorganizedTokens.patch(i-1, Seq(second, first), 2)
+        }
+    }
+    this.tokens = reorganizedTokens
+  }
 
   /*
   CFG:
@@ -49,7 +62,7 @@ class Parser {
     var ret = term(Token.TYPE_IF)
     var t = ret
     ret = ret && testIf && term(Token.TYPE_LEFT_PARENTHESES) && expr && term(Token.TYPE_RIGHT_PARENTHESES) && expr
-    if (t) parseTreePointer = parseTreePointer.parent
+    if (t) parseTreePointer = parseTreePointer.parent // If it was an if, its children have been added, so go back up to the if's parent
     if (!ret) parseTreePointer.children = parseTreePointer.children.take(numChildren)
     if (!ret) rollBack(savedQueueSize, localSave)
     // Delimiter handled recursively
@@ -60,7 +73,13 @@ class Parser {
     val localSave = save
     val savedQueueSize = queue.size
     save = next
-    val ret = term(Token.TYPE_OPERATOR) && expr
+
+    val numChildren = parseTreePointer.children.size
+    var ret = term(Token.TYPE_OPERATOR)
+    var t = ret
+    ret = ret && testIf && expr && expr
+    if (t) parseTreePointer = parseTreePointer.parent // If it was an if, its children have been added, so go back up to the if's parent
+    if (!ret) parseTreePointer.children = parseTreePointer.children.take(numChildren)
     if (!ret) rollBack(savedQueueSize, localSave)
     // Delimiter handled recursively
     ret
@@ -70,7 +89,11 @@ class Parser {
     val localSave = save
     val savedQueueSize = queue.size
     save = next
+    parseTreePointer.addChild(Token(Token.DELIMITER))
+    parseTreePointer = parseTreePointer.children(parseTreePointer.children.size - 1)
     val ret = term(Token.TYPE_NUMBER) && exprCompoundOpExpr
+    parseTreePointer = parseTreePointer.parent
+    if (!ret) parseTreePointer.children = parseTreePointer.children.dropRight(1)
     if (!ret) rollBack(savedQueueSize, localSave)
     // Delimiter handled recursively
     ret
@@ -93,7 +116,7 @@ class Parser {
   def expr: Boolean = {
     save = next
     addDelimiter
-    val ret = exprIf || exprCompoundNum || exprCompoundId || exprNum || exprId || error
+    val ret = exprIf || exprCompoundOpExpr || exprNum || exprId || error
     addDelimiter
     ret
   }
@@ -118,7 +141,7 @@ class Parser {
 
   def error: Boolean = {
     next = save
-    queue.enqueue(Token(Token.TYPE_ERROR, "error with token #" + next + ": " + tokens(next)))
+    queue.enqueue(Token(Token.TYPE_ERROR, "error with token #" + next))
     next += 1
     true
   }

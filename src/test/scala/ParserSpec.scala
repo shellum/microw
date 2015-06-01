@@ -20,22 +20,24 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
   "A Parser" should "parse simple math" in {
     val p = new Parser()
 
-    p.tokens = List(
+    p.setTokens(List(
       Token(Token.TYPE_NUMBER, "5"),
       Token(Token.TYPE_OPERATOR, "*"),
       Token(Token.TYPE_NUMBER, "1"),
       Token(Token.TYPE_OPERATOR, "-"),
       Token(Token.TYPE_NUMBER, "8")
-    )
+    ))
 
     while (p.hasMoreTokens) p.expr
 
     p.getProcessedToken should be(Token(Token.DELIMITER))
-    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"5"))
     p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"*"))
     p.getProcessedToken should be(Token(Token.DELIMITER))
-    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"1"))
+    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"5"))
+    p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"-"))
+    p.getProcessedToken should be(Token(Token.DELIMITER))
+    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"1"))
     p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"8"))
     p.getProcessedToken should be(Token(Token.DELIMITER))
@@ -44,38 +46,31 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
   "A Parser" should "understand errors" in {
     val p = new Parser()
 
-    p.tokens = List(
-      Token(Token.TYPE_OPERATOR, "*"),
-      Token(Token.TYPE_OPERATOR, "*"),
-      Token(Token.TYPE_NUMBER, "1"),
-      Token(Token.TYPE_OPERATOR, "-"),
-      Token(Token.TYPE_NUMBER, "8")
-    )
+    p.setTokens(List(
+      Token(Token.TYPE_OPERATOR, "*")
+    ))
 
     while (p.hasMoreTokens) p.expr
 
     p.getProcessedToken should be(Token(Token.DELIMITER))
-    p.getProcessedToken.`type` should be(Token.TYPE_ERROR)
+    p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"*"))
     p.getProcessedToken should be(Token(Token.DELIMITER))
     p.getProcessedToken.`type` should be(Token.TYPE_ERROR)
     p.getProcessedToken should be(Token(Token.DELIMITER))
-    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"1"))
-    p.getProcessedToken should be(Token(Token.TYPE_OPERATOR,"-"))
-    p.getProcessedToken should be(Token(Token.DELIMITER))
-    p.getProcessedToken should be(Token(Token.TYPE_NUMBER,"8"))
+    p.getProcessedToken.`type` should be(Token.TYPE_ERROR)
     p.getProcessedToken should be(Token(Token.DELIMITER))
   }
 
   "A Parser" should "understand if" in {
     val p = new Parser()
 
-    p.tokens = List(
+    p.setTokens(List(
       Token(Token.TYPE_IF, "if"),
       Token(Token.TYPE_LEFT_PARENTHESES, "("),
       Token(Token.TYPE_VARIABLE, "a"),
       Token(Token.TYPE_RIGHT_PARENTHESES, ")"),
       Token(Token.TYPE_VARIABLE, "b")
-    )
+    ))
 
     while (p.hasMoreTokens) p.expr
 
@@ -94,13 +89,13 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
   "A Parser" should "build a parse tree for if" in {
     val p = new Parser()
 
-    p.tokens = List(
+    p.setTokens(List(
       Token(Token.TYPE_IF, "if"),
       Token(Token.TYPE_LEFT_PARENTHESES, "("),
       Token(Token.TYPE_VARIABLE, "a"),
       Token(Token.TYPE_RIGHT_PARENTHESES, ")"),
       Token(Token.TYPE_VARIABLE, "b")
-    )
+    ))
 
     while (p.hasMoreTokens) p.expr
 
