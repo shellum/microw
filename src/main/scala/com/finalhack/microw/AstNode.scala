@@ -1,5 +1,7 @@
 package com.finalhack.microw
 
+import scala.collection.mutable
+
 case class AstNode(value: Token = Token(Token.DELIMITER)) {
   var parent: AstNode = null
   var visited = false
@@ -62,6 +64,19 @@ case class AstNode(value: Token = Token(Token.DELIMITER)) {
     if (result != null)
       result.visited = true
     result
+  }
+
+  def makeStack: mutable.Stack[AstNode] = {
+    val stack = mutable.Stack[AstNode]()
+    val queue = mutable.Queue[AstNode]()
+    queue.enqueue(this)
+    while (!queue.isEmpty) {
+      val astNode = queue.dequeue()
+      stack.push(astNode)
+      for(child <- astNode.children)
+        queue.enqueue(child)
+    }
+    stack
   }
 
 }

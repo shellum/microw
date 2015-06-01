@@ -1,8 +1,6 @@
-import com.finalhack.microw.{AstNode, Parser, Token}
+import com.finalhack.microw.{AstNode, Token}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FlatSpec, Matchers}
-
-import scala.collection.mutable
 
 class AstNodeSpec extends FlatSpec with Matchers with MockFactory with BeforeAndAfter {
 
@@ -17,26 +15,26 @@ class AstNodeSpec extends FlatSpec with Matchers with MockFactory with BeforeAnd
     //              |
     //              8
     val root = AstNode()
-    root.addChild(Token(Token.TYPE_DIGIT,"1"))
-    root.addChild(Token(Token.TYPE_DIGIT,"2"))
-    root.addChild(Token(Token.TYPE_DIGIT,"3"))
-    root.children(0).addChild(Token(Token.TYPE_DIGIT,"4"))
-    root.children(1).addChild(Token(Token.TYPE_DIGIT,"5"))
-    root.children(1).addChild(Token(Token.TYPE_DIGIT,"6"))
-    root.children(1).addChild(Token(Token.TYPE_DIGIT,"7"))
-    root.children(1).children(2).addChild(Token(Token.TYPE_DIGIT,"8"))
-    root.children(2).addChild(Token(Token.TYPE_DIGIT,"9"))
+    root.addChild(Token(Token.TYPE_DIGIT, "1"))
+    root.addChild(Token(Token.TYPE_DIGIT, "2"))
+    root.addChild(Token(Token.TYPE_DIGIT, "3"))
+    root.children(0).addChild(Token(Token.TYPE_DIGIT, "4"))
+    root.children(1).addChild(Token(Token.TYPE_DIGIT, "5"))
+    root.children(1).addChild(Token(Token.TYPE_DIGIT, "6"))
+    root.children(1).addChild(Token(Token.TYPE_DIGIT, "7"))
+    root.children(1).children(2).addChild(Token(Token.TYPE_DIGIT, "8"))
+    root.children(2).addChild(Token(Token.TYPE_DIGIT, "9"))
     root
   }
 
   "An AstNode" should "travers to the bottom right" in {
     val root = setupAst
-    root.traverseToBottomRight.value should be(Token(Token.TYPE_DIGIT,"9"))
+    root.traverseToBottomRight.value should be(Token(Token.TYPE_DIGIT, "9"))
   }
 
   "An AstNode" should "travers to the bottom left" in {
     val root = setupAst
-    root.traverseToBottomLeft.value should be(Token(Token.TYPE_DIGIT,"4"))
+    root.traverseToBottomLeft.value should be(Token(Token.TYPE_DIGIT, "4"))
   }
 
   "An AstNode" should "copy itself" in {
@@ -104,6 +102,21 @@ class AstNodeSpec extends FlatSpec with Matchers with MockFactory with BeforeAnd
     another should be(root.children(1).children(0))
     val yetAnother = another.getNextUnvisitedNode
     yetAnother should be(root.children(1).children(2))
+  }
 
+  "An AstNode" should "make a pseudo code stack" in {
+    val root = setupAst
+    val stack = root.makeStack
+
+    stack.pop() should be(root.children(1).children(2).children(0))
+    stack.pop() should be(root.children(2).children(0))
+    stack.pop() should be(root.children(1).children(2))
+    stack.pop() should be(root.children(1).children(1))
+    stack.pop() should be(root.children(1).children(0))
+    stack.pop() should be(root.children(0).children(0))
+    stack.pop() should be(root.children(2))
+    stack.pop() should be(root.children(1))
+    stack.pop() should be(root.children(0))
+    stack.pop() should be(root)
   }
 }
