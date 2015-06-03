@@ -2,14 +2,52 @@ package com.finalhack.microw
 
 import java.io.FileOutputStream
 
+import scala.collection.mutable
+
 object BytecodeGenerator {
   val referenceFile = "reverseEngineering/C.class"
   val outFile = "testOutput/C.class"
   val out = new FileOutputStream(outFile)
 
   def main(args: Array[String]): Unit = {
-    writeSimpleSpecBytecode()
+    val testCode = "3*4"
+
+    val codeArray: Array[Int] = compile(testCode)
+
+    writeSimpleSpecBytecode(codeArray.length, codeArray)
     compareFiles(referenceFile, outFile)
+  }
+
+  def compile(codeToCompile: String): Array[Int] = {
+    val lexer = new Lexer {
+      override val input = new Input {
+        override val code = codeToCompile
+      }
+    }
+
+    val tokens = lexer.getAllTokens()
+
+    val parser = new Parser()
+    parser.setTokens(tokens)
+    while (parser.hasMoreTokens) parser.expr
+
+    val stack = parser.parseTree.makeStack
+
+    generateOpCodes(stack)
+  }
+
+  def generateOpCodes(stack: mutable.Stack[AstNode]): Array[Int] = {
+    var codeArray = Array[Int]()
+
+    for (element <- stack) {
+      element.value.value match {
+        case "*" => codeArray = codeArray :+ 0x68
+        case "+" => codeArray = codeArray :+ 0x60
+        case "" =>
+        case _ => codeArray = codeArray :+ 0x10 :+ element.value.value.toInt
+      }
+    }
+    codeArray
   }
 
   val CONSTANT_UTF8 = Array(0x01,0x00)
@@ -26,7 +64,7 @@ object BytecodeGenerator {
   def CONSTANT_POINTER_2(index: Int): Array[Int] = Array(index & 0xff00,index & 0xff)
   def CONSTANT_BYTELENGTH_4(number: Int): Array[Int] = Array(number & 0xff000000,number & 0xff0000,number & 0xff00,number & 0xff)
 
-  def writeSimpleSpecBytecode() = {
+  def writeSimpleSpecBytecode(addedCodeLength: Int, codeArray: Array[Int]) = {
     write(CONSTANT_MAGIC)           // Magic
     write(CONSTANT_JAVA6)           // Bytecode version (50 -> 6)
     writeSimpleSpecConstantPool()     // Constant Count & Pool
@@ -63,11 +101,16 @@ object BytecodeGenerator {
     write(CONSTANT_COUNT_2(1))      // Attributes Count
     //Attribute for Field 2
     write(CONSTANT_POINTER_2(8))        // Attribute Name Index
-    write(CONSTANT_BYTELENGTH_4(0x2b))  // Attribute Length
+    write(CONSTANT_BYTELENGTH_4(0x29+addedCodeLength))  // Attribute Length
     write(CONSTANT_NUMBER_2(2))         // Max Stack
     write(CONSTANT_NUMBER_2(2))         // Max Locals
-    write(CONSTANT_BYTELENGTH_4(0x0b))  // Code Length
-    write(Array(0x10,0x08,0x3c,0xb2,0x00,0x02,0x1b,0xb6,0x00,0x03,0xb1)) //Code
+    write(CONSTANT_BYTELENGTH_4(9+addedCodeLength))  // Code Length
+    write(codeArray) // Inject compiled code
+    write(Array(0x3c)) // Push int to stack, save to local 1
+    write(Array(0xb2,0x00,0x02)) // Initialize System.out
+    write(Array(0x1b)) // Load local 1 from stack
+    write(Array(0xb6,0x00,0x03)) // Invoke println
+    write(Array(0xb1)) // Return void
     write(CONSTANT_COUNT_2(0))          // Exception Table Length
     write(CONSTANT_COUNT_2(1))          // Code Attribute Count
     write(CONSTANT_POINTER_2(9))        // LineNumberTable

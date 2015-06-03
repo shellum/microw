@@ -36,6 +36,7 @@ case class AstNode(value: Token = Token(Token.DELIMITER)) {
     track
   }
 
+  // TODO: Change from DFS to BFS
   def makeStack: mutable.Stack[AstNode] = {
     val stack = mutable.Stack[AstNode]()
     val queue = mutable.Queue[AstNode]()
