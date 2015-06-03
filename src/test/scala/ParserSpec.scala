@@ -108,4 +108,18 @@ class ParserSpec extends FlatSpec with Matchers with MockFactory with BeforeAndA
     p.parseTree.children(0).children(3).value.value should be("b")
   }
 
+  "A Parser" should "change infix operators to prefix operators" in {
+    val p = new Parser()
+
+    p.setTokens(List(
+      Token(Token.TYPE_NUMBER, "4"),
+      Token(Token.TYPE_OPERATOR, "*"),
+      Token(Token.TYPE_NUMBER, "2")
+    ))
+
+    p.getTokens(0).`type` should be(Token.TYPE_OPERATOR)
+    p.getTokens(1).`type` should be(Token.TYPE_NUMBER)
+    p.getTokens(2).`type` should be(Token.TYPE_NUMBER)
+  }
+
 }

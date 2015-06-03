@@ -36,36 +36,6 @@ case class AstNode(value: Token = Token(Token.DELIMITER)) {
     track
   }
 
-  def markAllVisited(visited: Boolean): Unit = {
-    this.visited = visited
-    for (child <- children)
-      child.markAllVisited(visited)
-  }
-
-  def getUnvisitedChild: AstNode = {
-    var unvisitedNode: AstNode = null
-    for (child <- children)
-      if (unvisitedNode == null && !child.visited)
-        unvisitedNode = child
-    unvisitedNode
-  }
-
-  def getNextUnvisitedNode: AstNode = {
-    var result: AstNode = this
-    if (!visited)
-      result = this
-    else {
-      result = getUnvisitedChild
-      if (result == null && parent == null)
-        result = null
-      else if (result == null)
-        result = parent.getNextUnvisitedNode
-    }
-    if (result != null)
-      result.visited = true
-    result
-  }
-
   def makeStack: mutable.Stack[AstNode] = {
     val stack = mutable.Stack[AstNode]()
     val queue = mutable.Queue[AstNode]()

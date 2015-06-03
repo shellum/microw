@@ -2,7 +2,17 @@ package com.finalhack.microw
 
 import scala.collection.mutable
 
-
+/*
+CFG:
+   expr ->
+         exprIf            | IF ( expr ) expr
+         exprCompoundOpExpr| OPERATOR expr expr
+         exprCompoundId    | ID exprCompound
+         exprNum           | NUM
+         exprId            | ID
+   exprCompound->
+         exprCompoundOpExpr| OPERATION expr
+ */
 class Parser {
 
   var queue = mutable.Queue[Token]()
@@ -13,29 +23,24 @@ class Parser {
   private var tokens: List[Token] = _
 
   def setTokens(tokens: List[Token]) = {
+    this.tokens = changeInfixOperatorsToPrefixOperators(tokens)
+  }
+
+  def getTokens = tokens
+
+  def changeInfixOperatorsToPrefixOperators(tokens: List[Token]): List[Token] = {
     var reorganizedTokens: List[Token] = tokens
 
     tokens.zipWithIndex.foreach { case (token, i) =>
-        if (i > 0 && token.`type` == Token.TYPE_OPERATOR) {
-          val first = tokens(i-1)
-          val second = tokens(i)
-          reorganizedTokens = reorganizedTokens.patch(i-1, Seq(second, first), 2)
-        }
+      if (i > 0 && token.`type` == Token.TYPE_OPERATOR) {
+        val first = tokens(i-1)
+        val second = tokens(i)
+        reorganizedTokens = reorganizedTokens.patch(i-1, Seq(second, first), 2)
+      }
     }
-    this.tokens = reorganizedTokens
+    reorganizedTokens
   }
-
-  /*
-  CFG:
-     expr ->
-           exprIf            | IF ( expr ) expr
-           exprCompoundNum   | NUM exprCompound  if multiple ops, next=save else save = next
-           exprCompoundId    | ID exprCompound
-           exprNum           | NUM
-           exprId            | ID
-     exprCompound->
-           exprCompoundOpExpr| OPERATION expr
-   */
+  
   def term(value: String): Boolean = {
     var ret = false
     if (next < tokens.size)
@@ -48,7 +53,7 @@ class Parser {
     ret
   }
 
-  def testIf: Boolean = {
+  def pointToLastAddedElement: Boolean = {
     parseTreePointer = parseTreePointer.children(parseTreePointer.children.size - 1)
     true
   }
@@ -60,8 +65,8 @@ class Parser {
 
     val numChildren = parseTreePointer.children.size
     var ret = term(Token.TYPE_IF)
-    var t = ret
-    ret = ret && testIf && term(Token.TYPE_LEFT_PARENTHESES) && expr && term(Token.TYPE_RIGHT_PARENTHESES) && expr
+    val t = ret
+    ret = ret && pointToLastAddedElement && term(Token.TYPE_LEFT_PARENTHESES) && expr && term(Token.TYPE_RIGHT_PARENTHESES) && expr
     if (t) parseTreePointer = parseTreePointer.parent // If it was an if, its children have been added, so go back up to the if's parent
     if (!ret) parseTreePointer.children = parseTreePointer.children.take(numChildren)
     if (!ret) rollBack(savedQueueSize, localSave)
@@ -76,8 +81,8 @@ class Parser {
 
     val numChildren = parseTreePointer.children.size
     var ret = term(Token.TYPE_OPERATOR)
-    var t = ret
-    ret = ret && testIf && expr && expr
+    val t = ret
+    ret = ret && pointToLastAddedElement && expr && expr
     if (t) parseTreePointer = parseTreePointer.parent // If it was an if, its children have been added, so go back up to the if's parent
     if (!ret) parseTreePointer.children = parseTreePointer.children.take(numChildren)
     if (!ret) rollBack(savedQueueSize, localSave)

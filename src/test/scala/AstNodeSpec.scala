@@ -57,53 +57,6 @@ class AstNodeSpec extends FlatSpec with Matchers with MockFactory with BeforeAnd
     rootCopy.children should be(root.children)
   }
 
-  "An AstNode" should "mark all nodes as not visited" in {
-    val root = setupAst
-
-    root.visited = true
-    root.children(0).visited = true
-    root.children(1).visited = true
-    root.children(2).visited = true
-    root.children(1).children(0).visited = true
-    root.children(1).children(1).visited = true
-    root.children(1).children(2).visited = true
-    root.children(1).children(2).children(0).visited = true
-    root.children(2).children(0).visited = true
-
-    root.markAllVisited(false)
-
-    root.visited should be(false)
-    root.children(0).visited should be(false)
-    root.children(1).visited should be(false)
-    root.children(2).visited should be(false)
-    root.children(1).children(0).visited should be(false)
-    root.children(1).children(1).visited should be(false)
-    root.children(1).children(2).visited should be(false)
-    root.children(1).children(2).children(0).visited should be(false)
-    root.children(2).children(0).visited should be(false)
-  }
-
-  "An AstNode" should "get an unvisited child" in {
-    val root = setupAst
-    root.visited = true
-    root.children(0).visited = true
-    root.children(1).visited = false
-    root.children(2).visited = false
-    root.children(0).children(0).visited = true
-    root.children(1).children(0).visited = false
-    root.children(1).children(1).visited = true
-    root.children(1).children(2).visited = false
-    root.children(1).children(2).children(0).visited = false
-    root.children(2).children(0).visited = true
-    val nextUnvisitedNode = root.traverseToBottomLeft.getNextUnvisitedNode
-
-    nextUnvisitedNode should be(root.children(1))
-    val another = nextUnvisitedNode.getNextUnvisitedNode
-    another should be(root.children(1).children(0))
-    val yetAnother = another.getNextUnvisitedNode
-    yetAnother should be(root.children(1).children(2))
-  }
-
   "An AstNode" should "make a pseudo code stack" in {
     val root = setupAst
     val stack = root.makeStack
