@@ -1,10 +1,10 @@
-import com.finalhack.microw.Input
+import com.finalhack.microw.{Token, Input}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, Matchers}
 
 class InputSpec extends FlatSpec with Matchers with MockFactory {
 
-  val testCode = "asdf\nasdf2"
+  val testCode = " \n\t  asdf\nasdf2"
 
   val inputReader = new Input {
     override val code = testCode
@@ -17,6 +17,24 @@ class InputSpec extends FlatSpec with Matchers with MockFactory {
   "Consuming each char" should "return each chars" in {
     for ((x,i) <- inputReader.code.zipWithIndex)
       inputReader.consumeCodeChar.get should be(testCode(i))
+  }
+
+  "The code pointer" should "skip over whitespace" in {
+    inputReader.nextCharIndex = 0
+    inputReader.movePastWhitespace
+    inputReader.nextCharIndex should be(5)
+  }
+
+  "Input" should "understand what character type is next" in {
+    inputReader.nextCharIndex = 4
+    inputReader.getNextCharType.get should be(Token.TYPE_WHITESPACE)
+    inputReader.nextCharIndex += 1
+    inputReader.getNextCharType.get should be(Token.TYPE_VARIABLE)
+  }
+
+  "Input" should "get the next code part" in {
+    inputReader.nextCharIndex = 0
+    inputReader.consumeCodePart.get should be("asdf")
   }
 
 }

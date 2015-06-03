@@ -7,11 +7,8 @@ CFG:
    expr ->
          exprIf            | IF ( expr ) expr
          exprCompoundOpExpr| OPERATOR expr expr
-         exprCompoundId    | ID exprCompound
          exprNum           | NUM
          exprId            | ID
-   exprCompound->
-         exprCompoundOpExpr| OPERATION expr
  */
 class Parser {
 
@@ -90,45 +87,11 @@ class Parser {
     ret
   }
 
-  def exprCompoundNum: Boolean = {
-    val localSave = save
-    val savedQueueSize = queue.size
-    save = next
-    parseTreePointer.addChild(Token(Token.DELIMITER))
-    parseTreePointer = parseTreePointer.children(parseTreePointer.children.size - 1)
-    val ret = term(Token.TYPE_NUMBER) && exprCompoundOpExpr
-    parseTreePointer = parseTreePointer.parent
-    if (!ret) parseTreePointer.children = parseTreePointer.children.dropRight(1)
-    if (!ret) rollBack(savedQueueSize, localSave)
-    // Delimiter handled recursively
-    ret
-  }
-
-  def exprCompoundId: Boolean = {
-    val localSave = save
-    val savedQueueSize = queue.size
-    save = next
-    parseTreePointer.addChild(Token(Token.DELIMITER))
-    parseTreePointer = parseTreePointer.children(parseTreePointer.children.size - 1)
-    val ret = term(Token.TYPE_VARIABLE) && exprCompoundOpExpr
-    parseTreePointer = parseTreePointer.parent
-    if (!ret) parseTreePointer.children = parseTreePointer.children.dropRight(1)
-    if (!ret) rollBack(savedQueueSize, localSave)
-    // Delimiter handled recursively
-    ret
-  }
-
   def expr: Boolean = {
     save = next
     addDelimiter
     val ret = exprIf || exprCompoundOpExpr || exprNum || exprId || error
     addDelimiter
-    ret
-  }
-
-  def exprCompound: Boolean = {
-    next = save
-    val ret = exprCompoundOpExpr
     ret
   }
 

@@ -48,7 +48,8 @@ trait InputSpec {
       case None => None
       case Some(codePartTypeValue) =>
         var codePart = ""
-        while (getNextCharType.isDefined && getNextCharType.get == codePartTypeValue) codePart += consumeCodeChar.get
+        while (getNextCharType.isDefined && getNextCharType.get == codePartTypeValue)
+          codePart += consumeCodeChar.get
         Option(codePart)
     }
   }
