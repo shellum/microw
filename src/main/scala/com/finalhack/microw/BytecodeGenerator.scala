@@ -64,6 +64,34 @@ object BytecodeGenerator {
   def CONSTANT_POINTER_2(index: Int): Array[Int] = Array(index & 0xff00,index & 0xff)
   def CONSTANT_BYTELENGTH_4(number: Int): Array[Int] = Array(number & 0xff000000,number & 0xff0000,number & 0xff00,number & 0xff)
 
+  def FLAGS_PUBLIC = 1
+  def FLAGS_PRIVATE = 2
+  def FLAGS_PROTECTED = 4
+  def FLAGS_STATIC = 8
+
+  def writeMethod(accessFlags: Int, methodName: Int, methodDescriptor: Int, codePointer: Int, codeLength: Int, customCodeArray: Array[Int], forcedCodeArray: Array[Int]): Unit = {
+    val bytesInCodeAttributeWithoutCode = 12
+
+    val maxStack = customCodeArray.filter(_==0x10).length + 1 // <init> seems to be "special"
+    val maxLocals = customCodeArray.filter(Array(0x2a,0x2b,0x2c,0x2d,0x3b,0x3c,0x3d,0x3e).contains(_)).length + 5 // TODO: how to count frame pointer stack entries (Args passed)? Assume 5 for now
+
+    write(CONSTANT_NUMBER_2(accessFlags))
+    write(CONSTANT_POINTER_2(methodName))
+    write(CONSTANT_POINTER_2(methodDescriptor))
+    write(CONSTANT_COUNT_2(1)) // One method attribute
+    write(CONSTANT_POINTER_2(codePointer))
+    write(CONSTANT_BYTELENGTH_4(codeLength + bytesInCodeAttributeWithoutCode)) // Attribute Length
+    write(CONSTANT_NUMBER_2(maxStack)) // Max stack
+    write(CONSTANT_NUMBER_2(maxLocals)) // Max locals
+    write(CONSTANT_BYTELENGTH_4(codeLength))
+    write(customCodeArray)
+    write(forcedCodeArray)
+    write(CONSTANT_COUNT_2(0)) // Exception table length
+    write(CONSTANT_COUNT_2(0)) // Attribute count
+  }
+
+
+
   def writeSimpleSpecBytecode(addedCodeLength: Int, codeArray: Array[Int]) = {
     write(CONSTANT_MAGIC)           // Magic
     write(CONSTANT_JAVA6)           // Bytecode version (50 -> 6)
@@ -74,54 +102,15 @@ object BytecodeGenerator {
     write(CONSTANT_COUNT_2(0))        // interface count
     write(CONSTANT_COUNT_2(0))      // field count
     write(CONSTANT_COUNT_2(2))        // method count
-    // Method 1
-    write(CONSTANT_NUMBER_2(1))        // Access Flags
-    write(CONSTANT_POINTER_2(6))       // Method Name
-    write(CONSTANT_POINTER_2(7))       // Method Descriptor
-    write(CONSTANT_COUNT_2(1))         // Attributes Count
-    // Attribute for Method 1
-    write(CONSTANT_POINTER_2(8))           // Attribute Name index
-    write(CONSTANT_BYTELENGTH_4(0x11))     // Attribute length
-    write(CONSTANT_NUMBER_2(1))            // Max stack
-    write(CONSTANT_NUMBER_2(1))            // Max locals
-    write(CONSTANT_BYTELENGTH_4(0x05))     // Code length
-    write(Array(0x2a,0xb7,0x00,0x01,0xb1)) // Code
-    write(CONSTANT_COUNT_2(0))             // Exception table length
-    write(CONSTANT_COUNT_2(0))             // Attribute count
-//    write(CONSTANT_POINTER_2(9))           // LineNumberTable
-//    write(CONSTANT_BYTELENGTH_4(0x06))     // LineNumberTable Length
-//    write(CONSTANT_COUNT_2(1))             // lineNumberTable Count
-//    write(CONSTANT_NUMBER_2(0))            // Start PC
-//    write(CONSTANT_NUMBER_2(1))            // Line Number
-
-    // Method 2
-    write(CONSTANT_NUMBER_2(9))     // Access Flags
-    write(CONSTANT_POINTER_2(0x0a)) // Method Name
-    write(CONSTANT_POINTER_2(0x0b)) // Method Descriptor
-    write(CONSTANT_COUNT_2(1))      // Attributes Count
-    //Attribute for Method 2
-    write(CONSTANT_POINTER_2(8))        // Attribute Name Index
-    write(CONSTANT_BYTELENGTH_4(0x15+addedCodeLength))  // Attribute Length
-    write(CONSTANT_NUMBER_2(2))         // Max Stack
-    write(CONSTANT_NUMBER_2(2))         // Max Locals
-    write(CONSTANT_BYTELENGTH_4(9+addedCodeLength))  // Code Length
-    write(codeArray) // Inject compiled code
-    write(Array(0x3c)) // Push int to stack, save to local 1
-    write(Array(0xb2,0x00,0x02)) // Initialize System.out
-    write(Array(0x1b)) // Load local 1 from stack
-    write(Array(0xb6,0x00,0x03)) // Invoke println
-    write(Array(0xb1)) // Return void
-    write(CONSTANT_COUNT_2(0))          // Exception Table Length
-    write(CONSTANT_COUNT_2(0))          // Code Attribute Count
-//    write(CONSTANT_POINTER_2(9))        // LineNumberTable
-//    write(CONSTANT_BYTELENGTH_4(0x0e))  // LineNumberTable Length
-//    write(CONSTANT_COUNT_2(0x03))       // Attribute Table Size
-//    write(CONSTANT_NUMBER_2(0))         // Start PC
-//    write(CONSTANT_NUMBER_2(3))         // Line Number
-//    write(CONSTANT_NUMBER_2(3))         // Start PC
-//    write(CONSTANT_NUMBER_2(4))         // Line Number
-//    write(CONSTANT_NUMBER_2(10))        // Start PC
-//    write(CONSTANT_NUMBER_2(5))         // Line Number
+    writeMethod(FLAGS_PUBLIC, 6, 7, 8,0x05,Array(0x2a,0xb7,0x00,0x01,0xb1),Array())
+    writeMethod(FLAGS_PUBLIC|FLAGS_STATIC, 0x0a, 0x0b, 8,addedCodeLength+9,
+     codeArray, // Inject compiled code
+      Array(  0x3c, // Push int to stack, save to local 1
+        0xb2,0x00,0x02, // Initialize System.out
+        0x1b, // Load local 1 from stack
+        0xb6,0x00,0x03, // Invoke println
+        0xb1) // Return void
+    )
 
     write(Array(0x00,0x01,              // Attributes Count
       0x00,0x0c,                        // Attribute 1: Source File
