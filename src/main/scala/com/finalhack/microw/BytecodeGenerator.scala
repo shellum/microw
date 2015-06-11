@@ -72,14 +72,14 @@ object BytecodeGenerator {
     write(CONSTANT_POINTER_2(4))      // this class
     write(CONSTANT_POINTER_2(5))      // super class
     write(CONSTANT_COUNT_2(0))        // interface count
-    write(CONSTANT_EMPTYARRAY_2)      // interface array
-    write(CONSTANT_COUNT_2(2))        // field count
-    // Field 1
+    write(CONSTANT_COUNT_2(0))      // field count
+    write(CONSTANT_COUNT_2(2))        // method count
+    // Method 1
     write(CONSTANT_NUMBER_2(1))        // Access Flags
-    write(CONSTANT_POINTER_2(6))       // Field Name
-    write(CONSTANT_POINTER_2(7))       // Field Descriptor
+    write(CONSTANT_POINTER_2(6))       // Method Name
+    write(CONSTANT_POINTER_2(7))       // Method Descriptor
     write(CONSTANT_COUNT_2(1))         // Attributes Count
-    // Attribute for Field 1
+    // Attribute for Method 1
     write(CONSTANT_POINTER_2(8))           // Attribute Name index
     write(CONSTANT_BYTELENGTH_4(0x1d))     // Attribute length
     write(CONSTANT_NUMBER_2(1))            // Max stack
@@ -94,12 +94,12 @@ object BytecodeGenerator {
     write(CONSTANT_NUMBER_2(0))            // Start PC
     write(CONSTANT_NUMBER_2(1))            // Line Number
 
-    // Field 2
+    // Method 2
     write(CONSTANT_NUMBER_2(9))     // Access Flags
-    write(CONSTANT_POINTER_2(0x0a)) // Field Name
-    write(CONSTANT_POINTER_2(0x0b)) // Field Descriptor
+    write(CONSTANT_POINTER_2(0x0a)) // Method Name
+    write(CONSTANT_POINTER_2(0x0b)) // Method Descriptor
     write(CONSTANT_COUNT_2(1))      // Attributes Count
-    //Attribute for Field 2
+    //Attribute for Method 2
     write(CONSTANT_POINTER_2(8))        // Attribute Name Index
     write(CONSTANT_BYTELENGTH_4(0x29+addedCodeLength))  // Attribute Length
     write(CONSTANT_NUMBER_2(2))         // Max Stack
@@ -123,8 +123,10 @@ object BytecodeGenerator {
     write(CONSTANT_NUMBER_2(10))        // Start PC
     write(CONSTANT_NUMBER_2(5))         // Line Number
 
-    write(Array(0x00,0x01,              // Method Count
-      0x00,0x0c,0x00,0x00,0x00,0x02,0x00,0x0d)) // ???
+    write(Array(0x00,0x01,              // Attributes Count
+      0x00,0x0c,                        // Attribute 1: Source File
+      0x00,0x00,0x00,0x02,              // Attribute Length
+      0x00,0x0d))                       // Pointer to Source File Value
     out.close()
   }
 
