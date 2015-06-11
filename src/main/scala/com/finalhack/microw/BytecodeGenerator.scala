@@ -81,18 +81,18 @@ object BytecodeGenerator {
     write(CONSTANT_COUNT_2(1))         // Attributes Count
     // Attribute for Method 1
     write(CONSTANT_POINTER_2(8))           // Attribute Name index
-    write(CONSTANT_BYTELENGTH_4(0x1d))     // Attribute length
+    write(CONSTANT_BYTELENGTH_4(0x11))     // Attribute length
     write(CONSTANT_NUMBER_2(1))            // Max stack
     write(CONSTANT_NUMBER_2(1))            // Max locals
     write(CONSTANT_BYTELENGTH_4(0x05))     // Code length
     write(Array(0x2a,0xb7,0x00,0x01,0xb1)) // Code
     write(CONSTANT_COUNT_2(0))             // Exception table length
-    write(CONSTANT_COUNT_2(1))             // Attribute count
-    write(CONSTANT_POINTER_2(9))           // LineNumberTable
-    write(CONSTANT_BYTELENGTH_4(0x06))     // LineNumberTable Length
-    write(CONSTANT_COUNT_2(1))             // lineNumberTable Count
-    write(CONSTANT_NUMBER_2(0))            // Start PC
-    write(CONSTANT_NUMBER_2(1))            // Line Number
+    write(CONSTANT_COUNT_2(0))             // Attribute count
+//    write(CONSTANT_POINTER_2(9))           // LineNumberTable
+//    write(CONSTANT_BYTELENGTH_4(0x06))     // LineNumberTable Length
+//    write(CONSTANT_COUNT_2(1))             // lineNumberTable Count
+//    write(CONSTANT_NUMBER_2(0))            // Start PC
+//    write(CONSTANT_NUMBER_2(1))            // Line Number
 
     // Method 2
     write(CONSTANT_NUMBER_2(9))     // Access Flags
@@ -101,7 +101,7 @@ object BytecodeGenerator {
     write(CONSTANT_COUNT_2(1))      // Attributes Count
     //Attribute for Method 2
     write(CONSTANT_POINTER_2(8))        // Attribute Name Index
-    write(CONSTANT_BYTELENGTH_4(0x29+addedCodeLength))  // Attribute Length
+    write(CONSTANT_BYTELENGTH_4(0x15+addedCodeLength))  // Attribute Length
     write(CONSTANT_NUMBER_2(2))         // Max Stack
     write(CONSTANT_NUMBER_2(2))         // Max Locals
     write(CONSTANT_BYTELENGTH_4(9+addedCodeLength))  // Code Length
@@ -112,16 +112,16 @@ object BytecodeGenerator {
     write(Array(0xb6,0x00,0x03)) // Invoke println
     write(Array(0xb1)) // Return void
     write(CONSTANT_COUNT_2(0))          // Exception Table Length
-    write(CONSTANT_COUNT_2(1))          // Code Attribute Count
-    write(CONSTANT_POINTER_2(9))        // LineNumberTable
-    write(CONSTANT_BYTELENGTH_4(0x0e))  // LineNumberTable Length
-    write(CONSTANT_COUNT_2(0x03))       // Attribute Table Size
-    write(CONSTANT_NUMBER_2(0))         // Start PC
-    write(CONSTANT_NUMBER_2(3))         // Line Number
-    write(CONSTANT_NUMBER_2(3))         // Start PC
-    write(CONSTANT_NUMBER_2(4))         // Line Number
-    write(CONSTANT_NUMBER_2(10))        // Start PC
-    write(CONSTANT_NUMBER_2(5))         // Line Number
+    write(CONSTANT_COUNT_2(0))          // Code Attribute Count
+//    write(CONSTANT_POINTER_2(9))        // LineNumberTable
+//    write(CONSTANT_BYTELENGTH_4(0x0e))  // LineNumberTable Length
+//    write(CONSTANT_COUNT_2(0x03))       // Attribute Table Size
+//    write(CONSTANT_NUMBER_2(0))         // Start PC
+//    write(CONSTANT_NUMBER_2(3))         // Line Number
+//    write(CONSTANT_NUMBER_2(3))         // Start PC
+//    write(CONSTANT_NUMBER_2(4))         // Line Number
+//    write(CONSTANT_NUMBER_2(10))        // Start PC
+//    write(CONSTANT_NUMBER_2(5))         // Line Number
 
     write(Array(0x00,0x01,              // Attributes Count
       0x00,0x0c,                        // Attribute 1: Source File
