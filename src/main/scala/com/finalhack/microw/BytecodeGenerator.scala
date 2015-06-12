@@ -124,26 +124,35 @@ object BytecodeGenerator {
     write(CONSTANT_UTF8,"SourceFile") //(1)
     write(CONSTANT_UTF8,"C.java")     //(2)
     write(CONSTANT_UTF8,"Code")       //(3)
+
+    //Method
     write(CONSTANT_METHODREF(5,7))    //(4)
     write(CONSTANT_CLASSREF(6))       //5
     write(CONSTANT_UTF8,"java/lang/Object") //(6)
     write(CONSTANT_NAMEANDTYPE(8,9))        //(7)
     write(CONSTANT_UTF8,"<init>")     //(8)
     write(CONSTANT_UTF8,"()V")        //(9)
+
+    //Field
     write(CONSTANT_FIELDREF(11,13))   //(10)
     write(CONSTANT_CLASSREF(12))      //(11)
     write(CONSTANT_UTF8,"java/lang/System") //(12)
     write(CONSTANT_NAMEANDTYPE(14,15))      //(13)
     write(CONSTANT_UTF8,"out")              //(14)
     write(CONSTANT_UTF8,"Ljava/io/PrintStream;")  //(15)
+
+    //Method
     write(CONSTANT_METHODREF(17,19))              //(16)
     write(CONSTANT_CLASSREF(18))                  //(17)
     write(CONSTANT_UTF8,"java/io/PrintStream")    //(18)
     write(CONSTANT_NAMEANDTYPE(20,21))            //(19)
     write(CONSTANT_UTF8,"println")                //(20)
     write(CONSTANT_UTF8,"(I)V")                   //(21)
+
     write(CONSTANT_CLASSREF(23))                  //(22)
     write(CONSTANT_UTF8,"C")                      //(23)
+
+    //Method
     write(CONSTANT_UTF8,"main")                   //(24)
     write(CONSTANT_UTF8,"([Ljava/lang/String;)V") //(25)
 
