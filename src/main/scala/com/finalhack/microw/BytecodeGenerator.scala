@@ -97,56 +97,56 @@ object BytecodeGenerator {
     write(CONSTANT_JAVA6)           // Bytecode version (50 -> 6)
     writeSimpleSpecConstantPool()     // Constant Count & Pool
     write(CONSTANT_NUMBER_2(0x21))    // Access Flags
-    write(CONSTANT_POINTER_2(4))      // this class
+    write(CONSTANT_POINTER_2(22))      // this class
     write(CONSTANT_POINTER_2(5))      // super class
     write(CONSTANT_COUNT_2(0))        // interface count
     write(CONSTANT_COUNT_2(0))      // field count
     write(CONSTANT_COUNT_2(2))        // method count
-    writeMethod(FLAGS_PUBLIC, 6, 7, 8,0x05,Array(0x2a,0xb7,0x00,0x01,0xb1),Array())
-    writeMethod(FLAGS_PUBLIC|FLAGS_STATIC, 0x0a, 0x0b, 8,addedCodeLength+9,
+    writeMethod(FLAGS_PUBLIC, 8, 9, 3,0x05,Array(0x2a,0xb7,0x00,0x04,0xb1),Array())
+    writeMethod(FLAGS_PUBLIC|FLAGS_STATIC, 24, 25, 3,addedCodeLength+9,
      codeArray, // Inject compiled code
       Array(  0x3c, // Push int to stack, save to local 1
-        0xb2,0x00,0x02, // Initialize System.out
+        0xb2,0x00,10, // Initialize System.out
         0x1b, // Load local 1 from stack
-        0xb6,0x00,0x03, // Invoke println
+        0xb6,0x00,16, // Invoke println
         0xb1) // Return void
     )
 
     write(Array(0x00,0x01,              // Attributes Count
-      0x00,0x0c,                        // Attribute 1: Source File
+      0x00,0x01,                        // Attribute 1: Source File
       0x00,0x00,0x00,0x02,              // Attribute Length
-      0x00,0x0d))                       // Pointer to Source File Value
+      0x00,0x02))                       // Pointer to Source File Value
     out.close()
   }
 
   def writeSimpleSpecConstantPool() = {
-    write(CONSTANT_POOLSIZE(27))      // Constant Pool Size
-    write(CONSTANT_METHODREF(5,14))   //(1)
-    write(CONSTANT_FIELDREF(15,16))   //(2)
-    write(CONSTANT_METHODREF(17,18))  //(3)
-    write(CONSTANT_CLASSREF(19))      //(4)
-    write(CONSTANT_CLASSREF(20))      //(5)
-    write(CONSTANT_UTF8,"<init>")     //(6)
-    write(CONSTANT_UTF8,"()V")        //(7)
-    write(CONSTANT_UTF8,"Code")       //(8)
-    write(CONSTANT_UTF8,"LineNumberTable") //(9)
-    write(CONSTANT_UTF8,"main")            //(10)
-    write(CONSTANT_UTF8,"([Ljava/lang/String;)V") //(11)
-    write(CONSTANT_UTF8,"SourceFile")   //(12)
-    write(CONSTANT_UTF8,"C.java")       //(13)
-    write(CONSTANT_NAMEANDTYPE(6,7))    //(14)
-    write(CONSTANT_CLASSREF(21))        //(15)
-    write(CONSTANT_NAMEANDTYPE(22,23))  //(16)
-    write(CONSTANT_CLASSREF(24))        //(17)
-    write(CONSTANT_NAMEANDTYPE(25,26))  //(18)
-    write(CONSTANT_UTF8,"C")                //(19)
-    write(CONSTANT_UTF8,"java/lang/Object") //(20)
-    write(CONSTANT_UTF8,"java/lang/System") //(21)
-    write(CONSTANT_UTF8,"out")              //(22)
-    write(CONSTANT_UTF8,"Ljava/io/PrintStream;")  //(23)
-    write(CONSTANT_UTF8,"java/io/PrintStream")    //(24)
-    write(CONSTANT_UTF8,"println")                //(25)
-    write(CONSTANT_UTF8,"(I)V")                   //(26)
+    write(CONSTANT_POOLSIZE(26))      // Constant Pool Size
+    write(CONSTANT_UTF8,"SourceFile") //(1)
+    write(CONSTANT_UTF8,"C.java")     //(2)
+    write(CONSTANT_UTF8,"Code")       //(3)
+    write(CONSTANT_METHODREF(5,7))    //(4)
+    write(CONSTANT_CLASSREF(6))       //5
+    write(CONSTANT_UTF8,"java/lang/Object") //(6)
+    write(CONSTANT_NAMEANDTYPE(8,9))        //(7)
+    write(CONSTANT_UTF8,"<init>")     //(8)
+    write(CONSTANT_UTF8,"()V")        //(9)
+    write(CONSTANT_FIELDREF(11,13))   //(10)
+    write(CONSTANT_CLASSREF(12))      //(11)
+    write(CONSTANT_UTF8,"java/lang/System") //(12)
+    write(CONSTANT_NAMEANDTYPE(14,15))      //(13)
+    write(CONSTANT_UTF8,"out")              //(14)
+    write(CONSTANT_UTF8,"Ljava/io/PrintStream;")  //(15)
+    write(CONSTANT_METHODREF(17,19))              //(16)
+    write(CONSTANT_CLASSREF(18))                  //(17)
+    write(CONSTANT_UTF8,"java/io/PrintStream")    //(18)
+    write(CONSTANT_NAMEANDTYPE(20,21))            //(19)
+    write(CONSTANT_UTF8,"println")                //(20)
+    write(CONSTANT_UTF8,"(I)V")                   //(21)
+    write(CONSTANT_CLASSREF(23))                  //(22)
+    write(CONSTANT_UTF8,"C")                      //(23)
+    write(CONSTANT_UTF8,"main")                   //(24)
+    write(CONSTANT_UTF8,"([Ljava/lang/String;)V") //(25)
+
   }
 
   def write(data: Array[Int]): Unit = {
