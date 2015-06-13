@@ -8,6 +8,7 @@ object BytecodeGenerator {
   val referenceFile = "reverseEngineering/C.class"
   val outFile = "testOutput/C.class"
   val out = new FileOutputStream(outFile)
+  var nextConstantPoolIndex = 1
 
   def main(args: Array[String]): Unit = {
     val testCode = "3*4"
@@ -125,29 +126,12 @@ object BytecodeGenerator {
     write(CONSTANT_UTF8,"C.java")     //(2)
     write(CONSTANT_UTF8,"Code")       //(3)
 
-    //Method
-    write(CONSTANT_METHODREF(5,7))    //(4)
-    write(CONSTANT_CLASSREF(6))       //5
-    write(CONSTANT_UTF8,"java/lang/Object") //(6)
-    write(CONSTANT_NAMEANDTYPE(8,9))        //(7)
-    write(CONSTANT_UTF8,"<init>")     //(8)
-    write(CONSTANT_UTF8,"()V")        //(9)
+    nextConstantPoolIndex = 4
+    addStaticMethod("java/lang/Object", "<init>", "()V")
 
-    //Field
-    write(CONSTANT_FIELDREF(11,13))   //(10)
-    write(CONSTANT_CLASSREF(12))      //(11)
-    write(CONSTANT_UTF8,"java/lang/System") //(12)
-    write(CONSTANT_NAMEANDTYPE(14,15))      //(13)
-    write(CONSTANT_UTF8,"out")              //(14)
-    write(CONSTANT_UTF8,"Ljava/io/PrintStream;")  //(15)
+    addStaticField("java/lang/System", "out", "Ljava/io/PrintStream;")
 
-    //Method
-    write(CONSTANT_METHODREF(17,19))              //(16)
-    write(CONSTANT_CLASSREF(18))                  //(17)
-    write(CONSTANT_UTF8,"java/io/PrintStream")    //(18)
-    write(CONSTANT_NAMEANDTYPE(20,21))            //(19)
-    write(CONSTANT_UTF8,"println")                //(20)
-    write(CONSTANT_UTF8,"(I)V")                   //(21)
+    addStaticMethod("java/io/PrintStream", "println", "(I)V")
 
     write(CONSTANT_CLASSREF(23))                  //(22)
     write(CONSTANT_UTF8,"C")                      //(23)
@@ -156,6 +140,37 @@ object BytecodeGenerator {
     write(CONSTANT_UTF8,"main")                   //(24)
     write(CONSTANT_UTF8,"([Ljava/lang/String;)V") //(25)
 
+  }
+
+  def addStaticMethod(className: String, name: String, `type`: String): Int = {
+    //Method
+    val base = nextConstantPoolIndex
+    write(CONSTANT_METHODREF(base+1,base+3))      //(base)
+    write(CONSTANT_CLASSREF(base+2))              //(base+1)
+    write(CONSTANT_UTF8, className)    //(base+2)
+    write(CONSTANT_NAMEANDTYPE(base+4,base+5))    //(base+3)
+    write(CONSTANT_UTF8, name)                //(base+4)
+    write(CONSTANT_UTF8, `type`)                   //(base+5)
+    nextConstantPoolIndex += 6
+    base
+  }
+
+  def addStaticField(className: String, name: String, `type`: String): Int = {
+    //Field
+    val base = nextConstantPoolIndex
+    write(CONSTANT_FIELDREF(base+1,base+3))   //(base)
+    write(CONSTANT_CLASSREF(base+2))      //(base+1)
+    write(CONSTANT_UTF8, className) //(base+2)
+    write(CONSTANT_NAMEANDTYPE(base+4,base+5))      //(base+3)
+    write(CONSTANT_UTF8, name)              //(base+4)
+    write(CONSTANT_UTF8, `type`)  //(base+5)
+    nextConstantPoolIndex += 6
+    base
+  }
+
+  def getAndIncrementConstantPoolIndex: Int = {
+    nextConstantPoolIndex += 1
+    nextConstantPoolIndex - 1
   }
 
   def write(data: Array[Int]): Unit = {
