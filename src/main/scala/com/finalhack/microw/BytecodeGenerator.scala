@@ -11,7 +11,10 @@ object BytecodeGenerator {
   var nextConstantPoolIndex = 1
 
   def main(args: Array[String]): Unit = {
-    val testCode = "3*4"
+    val testCode =
+      """
+        |main -> 3*4
+      """.stripMargin
 
     val codeArray: Array[Int] = compile(testCode)
 
@@ -40,12 +43,15 @@ object BytecodeGenerator {
   def generateOpCodes(stack: mutable.Stack[AstNode]): Array[Int] = {
     var codeArray = Array[Int]()
 
+    val REGEX_NUMBER = "[0-9]+".r
+
     for (element <- stack) {
       element.value.value match {
         case "*" => codeArray = codeArray :+ 0x68
         case "+" => codeArray = codeArray :+ 0x60
         case "" =>
-        case _ => codeArray = codeArray :+ 0x10 :+ element.value.value.toInt
+        case REGEX_NUMBER() => codeArray = codeArray :+ 0x10 :+ element.value.value.toInt
+        case _ =>
       }
     }
     codeArray

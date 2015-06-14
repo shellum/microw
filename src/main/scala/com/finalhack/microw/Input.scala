@@ -42,16 +42,16 @@ trait InputSpec {
 
   def consumeCodePart: Option[String] = {
     movePastWhitespace
-    val REGEX_BLOCK = "([{}]+).*".r
-    val REGEX_LEFT_PARENTHESES = "([(]+).*".r
-    val REGEX_RIGHT_PARENTHESES = "([)]+).*".r
-    val REGEX_OPERATOR = "([+*-/]).*".r
-    val REGEX_ASSIGNMENT = "([=]).*".r
-    val REGEX_DIGIT = "([0-9]+).*".r
-    val REGEX_WHITESPACE = "(\\s+).*".r
-    val REGEX_VARIABLE = "([a-z]+[a-z0-9]*).*".r
-    val REGEX_METHOD_START = "(->).*".r
-    val REGEX_ALL = ".*".r
+    val REGEX_BLOCK = "(?s)([{}]+).*".r
+    val REGEX_LEFT_PARENTHESES = "(?s)([(]+).*".r
+    val REGEX_RIGHT_PARENTHESES = "(?s)([)]+).*".r
+    val REGEX_OPERATOR = "(?s)([+*-/]).*".r
+    val REGEX_ASSIGNMENT = "(?s)([=]).*".r
+    val REGEX_DIGIT = "(?s)([0-9]+).*".r
+    val REGEX_WHITESPACE = "(?s)(\\s+).*".r
+    val REGEX_VARIABLE = "(?s)([a-z]+[a-z0-9]*).*".r
+    val REGEX_METHOD_START = "(?s)(->).*".r
+    val REGEX_ALL = "(?s).*".r
 
     nextCharIndex < code.length() match {
 

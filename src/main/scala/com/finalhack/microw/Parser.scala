@@ -9,6 +9,8 @@ CFG:
          exprCompoundOpExpr| OPERATOR expr expr
          exprNum           | NUM
          exprId            | ID
+         expr              | \n expr
+         exprMethod        | ID ( expr ) -> expr .
  */
 class Parser {
 

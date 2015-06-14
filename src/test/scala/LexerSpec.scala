@@ -12,7 +12,7 @@ class LexerSpec extends FlatSpec with Matchers with MockFactory with BeforeAndAf
         override val code = """
           |asdf = asdf + 1
           |asdf+2
-          | """.stripMargin.replace('\n',' ')
+          | """.stripMargin
       }
     }
   }

@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class InputSpec extends FlatSpec with Matchers with MockFactory {
 
-  val testCode = " \n\t  asdf\nasdf2->".replace('\n',' ')
+  val testCode = " \n\t  asdf\nasdf2->"
 
   val inputReader = new Input {
     override val code = testCode

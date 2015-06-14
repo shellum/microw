@@ -9,7 +9,7 @@ class CompilerSpec extends FlatSpec with Matchers with MockFactory with BeforeAn
       override val input = new Input {
         override val code = """
                               |1+2*3
-                              | """.stripMargin.replace('\n',' ')
+                              | """.stripMargin
       }
     }
 
