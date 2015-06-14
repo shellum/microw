@@ -4,7 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class InputSpec extends FlatSpec with Matchers with MockFactory {
 
-  val testCode = " \n\t  asdf\nasdf2"
+  val testCode = " \n\t  asdf\nasdf2->".replace('\n',' ')
 
   val inputReader = new Input {
     override val code = testCode
@@ -35,6 +35,12 @@ class InputSpec extends FlatSpec with Matchers with MockFactory {
   "Input" should "get the next code part" in {
     inputReader.nextCharIndex = 0
     inputReader.consumeCodePart.get should be("asdf")
+  }
+  "Input" should "recognize a method start" in {
+    inputReader.nextCharIndex = 0
+    inputReader.consumeCodePart.get should be("asdf")
+    inputReader.consumeCodePart.get should be("asdf2")
+    inputReader.consumeCodePart.get should be("->")
   }
 
 }

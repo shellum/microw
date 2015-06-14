@@ -119,7 +119,8 @@ object BytecodeGenerator {
       0x00,0x02))                       // Pointer to Source File Value
     out.close()
   }
-
+//TODO: need to build metadata table with ast that counts methods
+ //TODO:  need to add methods to cfg
   def writeSimpleSpecConstantPool() = {
     write(CONSTANT_POOLSIZE(26))      // Constant Pool Size
     write(CONSTANT_UTF8,"SourceFile") //(1)

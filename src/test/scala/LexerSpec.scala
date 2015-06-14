@@ -11,8 +11,8 @@ class LexerSpec extends FlatSpec with Matchers with MockFactory with BeforeAndAf
       override val input = new Input {
         override val code = """
           |asdf = asdf + 1
-          |asdf++
-          | """.stripMargin
+          |asdf+2
+          | """.stripMargin.replace('\n',' ')
       }
     }
   }
@@ -86,7 +86,11 @@ class LexerSpec extends FlatSpec with Matchers with MockFactory with BeforeAndAf
 
     token = lexer.getNextCodePart.get
     token.`type` should be(Token.TYPE_OPERATOR)
-    token.value should be("++")
+    token.value should be("+")
+
+    token = lexer.getNextCodePart.get
+    token.`type` should be(Token.TYPE_NUMBER)
+    token.value should be("2")
 
     val ending = lexer.getNextCodePart
     ending should be(None)
@@ -94,7 +98,7 @@ class LexerSpec extends FlatSpec with Matchers with MockFactory with BeforeAndAf
 
   it should "create the correct number of tokens" in {
     val tokens = lexer.getAllTokens()
-    tokens.size should be(7)
+    tokens.size should be(8)
   }
 
 }

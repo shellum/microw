@@ -7,13 +7,14 @@ trait LexerSpec {
 class Lexer extends LexerSpec {
 
   def getTokenType(codePart: String): String = {
+    val REGEX_NUMBER = "[0-9]+".r
     codePart match {
-      case "+" | "*" | "-" | "/" | "++" | "--" => Token.TYPE_OPERATOR
+      case "+" | "*" | "-" | "/" => Token.TYPE_OPERATOR
       case "if" => Token.TYPE_IF
       case "(" => Token.TYPE_LEFT_PARENTHESES
       case ")" => Token.TYPE_RIGHT_PARENTHESES
       case "=" => Token.TYPE_ASSIGNMENT
-      case "1" => Token.TYPE_NUMBER
+      case REGEX_NUMBER() => Token.TYPE_NUMBER
       case _ => Token.TYPE_VARIABLE
     }
   }

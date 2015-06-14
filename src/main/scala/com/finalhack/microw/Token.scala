@@ -13,6 +13,8 @@ object Token {
   val TYPE_ERROR = "error"
   val DELIMITER = "....."
   val TYPE_IF = "if"
+  val TYPE_METHOD_OPEN = "->"
+  val TYPE_METHOD_CLOSE = "."
   val TYPE_LEFT_PARENTHESES = "("
   val TYPE_RIGHT_PARENTHESES = ")"
 }
