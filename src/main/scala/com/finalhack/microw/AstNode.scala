@@ -36,16 +36,23 @@ case class AstNode(value: Token = Token(Token.DELIMITER)) {
     track
   }
 
+  var set = Set[AstNode]()
+
   // TODO: Change from DFS to BFS
   def makeStack: mutable.Stack[AstNode] = {
+    val traversalStack = mutable.Stack[AstNode]()
     val stack = mutable.Stack[AstNode]()
-    val queue = mutable.Queue[AstNode]()
-    queue.enqueue(this)
-    while (!queue.isEmpty) {
-      val astNode = queue.dequeue()
-      stack.push(astNode)
-      for(child <- astNode.children)
-        queue.enqueue(child)
+    var node = this
+    traversalStack.push(node)
+    while (!traversalStack.isEmpty) {
+      node = traversalStack.pop()
+      if (!set.contains(node)) {
+        set += node
+        stack.push(node)
+        for(child <- node.children.reverse)
+          traversalStack.push(child)
+      }
+
     }
     stack
   }

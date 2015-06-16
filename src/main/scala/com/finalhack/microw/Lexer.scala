@@ -15,6 +15,8 @@ class Lexer extends LexerSpec {
       case ")" => Token.TYPE_RIGHT_PARENTHESES
       case "=" => Token.TYPE_ASSIGNMENT
       case REGEX_NUMBER() => Token.TYPE_NUMBER
+      case "->" => Token.TYPE_METHOD_OPEN
+      case "." => Token.TYPE_METHOD_CLOSE
       case _ => Token.TYPE_VARIABLE
     }
   }

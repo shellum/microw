@@ -10,10 +10,12 @@ object BytecodeGenerator {
   val out = new FileOutputStream(outFile)
   var nextConstantPoolIndex = 1
 
+  var allCodeForAllMethods: Array[Int] = Array()
+
   def main(args: Array[String]): Unit = {
     val testCode =
       """
-        |main -> 3*4
+        |main -> 3*4.
       """.stripMargin
 
     val codeArray: Array[Int] = compile(testCode)
@@ -76,25 +78,29 @@ object BytecodeGenerator {
   def FLAGS_PROTECTED = 4
   def FLAGS_STATIC = 8
 
-  def writeMethod(accessFlags: Int, methodName: Int, methodDescriptor: Int, codePointer: Int, codeLength: Int, customCodeArray: Array[Int], forcedCodeArray: Array[Int]): Unit = {
+  def writeMethod(accessFlags: Int, methodName: Int, methodDescriptor: Int, codePointer: Int, customCodeArray: Array[Int], forcedCodeArray: Array[Int]): Array[Int] = {
     val bytesInCodeAttributeWithoutCode = 12
+    val codeLength = customCodeArray.size + forcedCodeArray.size
 
     val maxStack = customCodeArray.filter(_==0x10).length + 1 // <init> seems to be "special"
     val maxLocals = customCodeArray.filter(Array(0x2a,0x2b,0x2c,0x2d,0x3b,0x3c,0x3d,0x3e).contains(_)).length + 5 // TODO: how to count frame pointer stack entries (Args passed)? Assume 5 for now
 
-    write(CONSTANT_NUMBER_2(accessFlags))
-    write(CONSTANT_POINTER_2(methodName))
-    write(CONSTANT_POINTER_2(methodDescriptor))
-    write(CONSTANT_COUNT_2(1)) // One method attribute
-    write(CONSTANT_POINTER_2(codePointer))
-    write(CONSTANT_BYTELENGTH_4(codeLength + bytesInCodeAttributeWithoutCode)) // Attribute Length
-    write(CONSTANT_NUMBER_2(maxStack)) // Max stack
-    write(CONSTANT_NUMBER_2(maxLocals)) // Max locals
-    write(CONSTANT_BYTELENGTH_4(codeLength))
-    write(customCodeArray)
-    write(forcedCodeArray)
-    write(CONSTANT_COUNT_2(0)) // Exception table length
-    write(CONSTANT_COUNT_2(0)) // Attribute count
+    var methodArray: Array[Int] = Array()
+    methodArray = methodArray ++ CONSTANT_NUMBER_2(accessFlags)
+    methodArray = methodArray ++ CONSTANT_POINTER_2(methodName)
+    methodArray = methodArray ++ CONSTANT_POINTER_2(methodDescriptor)
+    methodArray = methodArray ++ CONSTANT_COUNT_2(1) // One method attribute
+    methodArray = methodArray ++ CONSTANT_POINTER_2(codePointer)
+    methodArray = methodArray ++ CONSTANT_BYTELENGTH_4(codeLength + bytesInCodeAttributeWithoutCode) // Attribute Length
+    methodArray = methodArray ++ CONSTANT_NUMBER_2(maxStack) // Max stack
+    methodArray = methodArray ++ CONSTANT_NUMBER_2(maxLocals) // Max locals
+    methodArray = methodArray ++ CONSTANT_BYTELENGTH_4(codeLength)
+    methodArray = methodArray ++ customCodeArray
+    methodArray = methodArray ++ forcedCodeArray
+    methodArray = methodArray ++ CONSTANT_COUNT_2(0) // Exception table length
+    methodArray = methodArray ++ CONSTANT_COUNT_2(0) // Attribute count
+
+    methodArray
   }
 
 
@@ -109,8 +115,8 @@ object BytecodeGenerator {
     write(CONSTANT_COUNT_2(0))        // interface count
     write(CONSTANT_COUNT_2(0))      // field count
     write(CONSTANT_COUNT_2(2))        // method count
-    writeMethod(FLAGS_PUBLIC, 8, 9, 3,0x05,Array(0x2a,0xb7,0x00,0x04,0xb1),Array())
-    writeMethod(FLAGS_PUBLIC|FLAGS_STATIC, 24, 25, 3,addedCodeLength+9,
+    allCodeForAllMethods = allCodeForAllMethods ++ writeMethod(FLAGS_PUBLIC, 8, 9, 3,Array(0x2a,0xb7,0x00,0x04,0xb1),Array())
+    allCodeForAllMethods = allCodeForAllMethods ++ writeMethod(FLAGS_PUBLIC|FLAGS_STATIC, 24, 25, 3,
      codeArray, // Inject compiled code
       Array(  0x3c, // Push int to stack, save to local 1
         0xb2,0x00,10, // Initialize System.out
@@ -118,6 +124,8 @@ object BytecodeGenerator {
         0xb6,0x00,16, // Invoke println
         0xb1) // Return void
     )
+
+    write(allCodeForAllMethods)
 
     write(Array(0x00,0x01,              // Attributes Count
       0x00,0x01,                        // Attribute 1: Source File

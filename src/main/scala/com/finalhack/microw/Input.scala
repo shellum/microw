@@ -51,6 +51,7 @@ trait InputSpec {
     val REGEX_WHITESPACE = "(?s)(\\s+).*".r
     val REGEX_VARIABLE = "(?s)([a-z]+[a-z0-9]*).*".r
     val REGEX_METHOD_START = "(?s)(->).*".r
+    val REGEX_METHOD_END = "(?s)([\\.]).*".r
     val REGEX_ALL = "(?s).*".r
 
     nextCharIndex < code.length() match {
@@ -67,6 +68,9 @@ trait InputSpec {
             nextCharIndex += str.length;
             Option(str)
           case REGEX_METHOD_START(str) =>
+            nextCharIndex += str.length;
+            Option(str)
+          case REGEX_METHOD_END(str) =>
             nextCharIndex += str.length;
             Option(str)
           case REGEX_OPERATOR(str) =>

@@ -6,11 +6,11 @@ import scala.collection.mutable
 CFG:
    expr ->
          exprIf            | IF ( expr ) expr
-         exprCompoundOpExpr| OPERATOR expr expr
+         exprCompoundOpExpr| OPERATOR expr expr (derived from 'expr OPERATOR expr')
          exprNum           | NUM
          exprId            | ID
          expr              | \n expr
-         exprMethod        | ID ( expr ) -> expr .
+         exprMethod        | -> ID expr . (derived from 'ID -> expr .')
  */
 class Parser {
 
@@ -30,8 +30,10 @@ class Parser {
   def changeInfixOperatorsToPrefixOperators(tokens: List[Token]): List[Token] = {
     var reorganizedTokens: List[Token] = tokens
 
+    val infixOperatorList = List(Token.TYPE_OPERATOR, Token.TYPE_METHOD_OPEN)
+
     tokens.zipWithIndex.foreach { case (token, i) =>
-      if (i > 0 && token.`type` == Token.TYPE_OPERATOR) {
+      if (i > 0 && infixOperatorList.contains(token.`type`)) {
         val first = tokens(i-1)
         val second = tokens(i)
         reorganizedTokens = reorganizedTokens.patch(i-1, Seq(second, first), 2)
@@ -89,23 +91,43 @@ class Parser {
     ret
   }
 
+  def method: Boolean = {
+    val localSave = save
+    val savedQueueSize = queue.size
+    save = next
+
+    val numChildren = parseTreePointer.children.size
+    var ret = term(Token.TYPE_METHOD_OPEN)
+    val t = ret
+    ret = ret && pointToLastAddedElement && expr && expr && term(Token.TYPE_METHOD_CLOSE)
+    if (t) parseTreePointer = parseTreePointer.parent // If it was an if, its children have been added, so go back up to the if's parent
+    if (!ret) parseTreePointer.children = parseTreePointer.children.take(numChildren)
+    if (!ret) rollBack(savedQueueSize, localSave)
+    // Delimiter handled recursively
+    ret
+  }
+
   def expr: Boolean = {
     save = next
     addDelimiter
-    val ret = exprIf || exprCompoundOpExpr || exprNum || exprId || error
+    val ret = exprIf || method || exprCompoundOpExpr || exprNum || exprId || error
     addDelimiter
     ret
   }
 
   def exprNum: Boolean = {
+    val localnext = next
     next = save
     val ret = term(Token.TYPE_NUMBER)
+    if (!ret) next = localnext
     ret
   }
 
   def exprId: Boolean = {
+    val localnext = next
     next = save
     val ret = term(Token.TYPE_VARIABLE)
+    if (!ret) next = localnext
     ret
   }
 
