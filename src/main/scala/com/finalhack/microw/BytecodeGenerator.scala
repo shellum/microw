@@ -18,9 +18,12 @@ object BytecodeGenerator {
         |main -> 3*4.
       """.stripMargin
 
-    val codeArray: Array[Int] = compile(testCode)
+    writeSimpleSpecBytecode()
 
-    writeSimpleSpecBytecode(codeArray.length, codeArray)
+    val codeArray: Array[Int] = compile(testCode)
+writeMoreBytecode()
+    finishSimpleSpecBytecode()
+
     compareFiles(referenceFile, outFile)
   }
 
@@ -42,19 +45,47 @@ object BytecodeGenerator {
     generateOpCodes(stack)
   }
 
+  def writeConstantPoolEntriesForMethod(name: String, params: String): (Int,Int) = {
+    write(CONSTANT_UTF8, name)
+    write(CONSTANT_UTF8, params)
+    nextConstantPoolIndex += 2
+    (nextConstantPoolIndex - 2, nextConstantPoolIndex - 1)
+  }
+
   def generateOpCodes(stack: mutable.Stack[AstNode]): Array[Int] = {
     var codeArray = Array[Int]()
+    var methodStartIndex = 0
 
     val REGEX_NUMBER = "[0-9]+".r
 
+    // TODO: Move me to a more sutible location (this method write for <init>)
+    allCodeForAllMethods = allCodeForAllMethods ++ writeMethod(FLAGS_PUBLIC, 8, 9, 3,Array(0x2a,0xb7,0x00,0x04,0xb1),Array())
+
+    var previousElement = AstNode()
+
     for (element <- stack) {
       element.value.value match {
+        case "." => methodStartIndex = codeArray.length
+        case "->" =>
+
+          val poolEntries = writeConstantPoolEntriesForMethod(previousElement.value.value, "([Ljava/lang/String;)V")
+          allCodeForAllMethods = allCodeForAllMethods ++ writeMethod(FLAGS_PUBLIC|FLAGS_STATIC, poolEntries._1, poolEntries._2, 3,
+            codeArray.slice(methodStartIndex,codeArray.length), // Inject compiled code
+            Array(  0x3c, // Push int to stack, save to local 1
+              0xb2,0x00,10, // Initialize System.out
+              0x1b, // Load local 1 from stack
+              0xb6,0x00,16, // Invoke println
+              0xb1) // Return void
+          )
+
+        case "-" => codeArray = codeArray :+ 0x64
         case "*" => codeArray = codeArray :+ 0x68
         case "+" => codeArray = codeArray :+ 0x60
         case "" =>
         case REGEX_NUMBER() => codeArray = codeArray :+ 0x10 :+ element.value.value.toInt
         case _ =>
       }
+      previousElement = element
     }
     codeArray
   }
@@ -105,26 +136,23 @@ object BytecodeGenerator {
 
 
 
-  def writeSimpleSpecBytecode(addedCodeLength: Int, codeArray: Array[Int]) = {
-    write(CONSTANT_MAGIC)           // Magic
-    write(CONSTANT_JAVA6)           // Bytecode version (50 -> 6)
-    writeSimpleSpecConstantPool()     // Constant Count & Pool
+  def writeSimpleSpecBytecode() = {
+    write(CONSTANT_MAGIC) // Magic
+    write(CONSTANT_JAVA6) // Bytecode version (50 -> 6)
+    writeSimpleSpecConstantPool() // Constant Count & Pool
+  }
+
+  def writeMoreBytecode() = {
     write(CONSTANT_NUMBER_2(0x21))    // Access Flags
     write(CONSTANT_POINTER_2(22))      // this class
     write(CONSTANT_POINTER_2(5))      // super class
     write(CONSTANT_COUNT_2(0))        // interface count
     write(CONSTANT_COUNT_2(0))      // field count
     write(CONSTANT_COUNT_2(2))        // method count
-    allCodeForAllMethods = allCodeForAllMethods ++ writeMethod(FLAGS_PUBLIC, 8, 9, 3,Array(0x2a,0xb7,0x00,0x04,0xb1),Array())
-    allCodeForAllMethods = allCodeForAllMethods ++ writeMethod(FLAGS_PUBLIC|FLAGS_STATIC, 24, 25, 3,
-     codeArray, // Inject compiled code
-      Array(  0x3c, // Push int to stack, save to local 1
-        0xb2,0x00,10, // Initialize System.out
-        0x1b, // Load local 1 from stack
-        0xb6,0x00,16, // Invoke println
-        0xb1) // Return void
-    )
 
+  }
+
+  def finishSimpleSpecBytecode() = {
     write(allCodeForAllMethods)
 
     write(Array(0x00,0x01,              // Attributes Count
@@ -132,7 +160,9 @@ object BytecodeGenerator {
       0x00,0x00,0x00,0x02,              // Attribute Length
       0x00,0x02))                       // Pointer to Source File Value
     out.close()
+
   }
+
 //TODO: need to build metadata table with ast that counts methods
  //TODO:  need to add methods to cfg
   def writeSimpleSpecConstantPool() = {
@@ -151,9 +181,9 @@ object BytecodeGenerator {
     write(CONSTANT_CLASSREF(23))                  //(22)
     write(CONSTANT_UTF8,"C")                      //(23)
 
-    //Method
-    write(CONSTANT_UTF8,"main")                   //(24)
-    write(CONSTANT_UTF8,"([Ljava/lang/String;)V") //(25)
+    nextConstantPoolIndex += 2
+
+
 
   }
 

@@ -36,7 +36,7 @@ case class AstNode(value: Token = Token(Token.DELIMITER)) {
     track
   }
 
-  var set = Set[AstNode]()
+  var set = Set[String]()
 
   // TODO: Change from DFS to BFS
   def makeStack: mutable.Stack[AstNode] = {
@@ -46,8 +46,8 @@ case class AstNode(value: Token = Token(Token.DELIMITER)) {
     traversalStack.push(node)
     while (!traversalStack.isEmpty) {
       node = traversalStack.pop()
-      if (!set.contains(node)) {
-        set += node
+      if (!node.visited) {
+        node.visited = true
         stack.push(node)
         for(child <- node.children.reverse)
           traversalStack.push(child)
